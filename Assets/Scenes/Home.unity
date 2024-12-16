@@ -738,6 +738,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 879222ff33e0b4d15adc259692291907, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentLobbyId: 
+  isLobbyActive: 0
 --- !u!4 &379066578
 Transform:
   m_ObjectHideFlags: 0
@@ -1883,8 +1885,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 82138f337310245ea8a1649ca7128f90, type: 2}
+  m_sharedMaterial: {fileID: -1705930573636939099, guid: 82138f337310245ea8a1649ca7128f90, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1908,8 +1910,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 80
+  m_fontSizeBase: 80
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -13,6 +14,9 @@ using UnityEngine.SceneManagement;
 public class LobbyAndRelayManager : MonoBehaviour
 {
     public static LobbyAndRelayManager Instance { get; private set; }
+
+    [SerializeField] private string currentLobbyId;
+    [SerializeField] private bool isLobbyActive;
 
     private void Awake()
     {
@@ -33,13 +37,13 @@ public class LobbyAndRelayManager : MonoBehaviour
         {
             string lobbyCode = await CreateLobbyAsync();
             Debug.Log($"Lobby code is {lobbyCode}");
-
-            await LoadGameSceneAsync();
-
-
-
             // Set up relay and start host
+            isLobbyActive = true;
+            currentLobbyId = lobbyCode;
+            _ = KeepLobbyAlive(currentLobbyId);
             await SetupRelayAndStartHost();
+            // Move to gameScene
+            await LoadGameSceneAsync();
         }
         catch (Exception e)
         {
@@ -53,12 +57,10 @@ public class LobbyAndRelayManager : MonoBehaviour
         {
             var lobby = await LobbyService.Instance.GetLobbyAsync(lobbyCode);
             Debug.Log($"Joining lobby with code: {lobby.LobbyCode}");
-
-          
-            await LoadGameSceneAsync();
-
             // Join relay
             await SetupRelayAndStartClient(lobby.LobbyCode);
+            // Move to gameScene
+            await LoadGameSceneAsync();
         }
         catch (Exception e)
         {
@@ -84,9 +86,6 @@ public class LobbyAndRelayManager : MonoBehaviour
             RelayServerData relayServerData = new RelayServerData(allocation, "dtls");
             var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
             transport.SetRelayServerData(relayServerData);
-
-            //await Task.Delay(2000);
-            // Start host
             NetworkManager.Singleton.StartHost();
 
             Debug.Log($"Lobby created. Join code: {joinCode}");
@@ -108,9 +107,6 @@ public class LobbyAndRelayManager : MonoBehaviour
 
             //await Task.Delay(2000);
             NetworkManager.Singleton.StartClient();
-
-            
-
             Debug.Log($"Successfully joined relay with join code: {joinCode}");
         }
         catch (Exception e)
@@ -130,6 +126,29 @@ public class LobbyAndRelayManager : MonoBehaviour
                 await Task.Yield(); 
             }
             Debug.Log("GameScene loaded.");
+        }
+    }
+    private async Task KeepLobbyAlive(string lobbyId)
+    {
+        while (isLobbyActive)
+        {
+            try
+            {
+                await LobbyService.Instance.UpdateLobbyAsync(lobbyId, new UpdateLobbyOptions
+                {
+                    Data = new Dictionary<string, DataObject>
+                    {
+                        { "GameStarted", new DataObject(DataObject.VisibilityOptions.Public, "true") }
+                    }
+                });
+                Debug.Log("Lobby status updated.");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to update lobby: {e.Message}");
+            }
+
+            await Task.Delay(30000); // Update every 30 seconds
         }
     }
 
