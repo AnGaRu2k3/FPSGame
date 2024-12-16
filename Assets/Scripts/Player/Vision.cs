@@ -77,11 +77,12 @@ public class Vision : NetworkBehaviour
         // Apply new rotation for non-owner clients
         transform.rotation = Quaternion.Euler(0f, newValue, 0f);
     }
-
-    private void OnDestroy()
+    public override void OnDestroy()
     {
         // Unregister callbacks to prevent memory leaks
         xRota.OnValueChanged -= OnXRotationChanged;
         yRota.OnValueChanged -= OnYRotationChanged;
+
+        base.OnDestroy();
     }
 }
