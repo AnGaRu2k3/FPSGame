@@ -4,17 +4,16 @@ using Unity.Netcode;
 public class PlayerMovement : NetworkBehaviour
 {
     [SerializeField] private float speed = 5f;
-    [SerializeField] private float gravity = -9.8f * 2;
     [SerializeField] private float jumpHeight = 3f;
-    [SerializeField] private Vector3 velocity;
-    [SerializeField] private bool isGrounded;
-
+    [SerializeField] private float gravity = -9.8f * 2;
     [SerializeField] private CharacterController controller;
 
+    [SerializeField] private bool isGrounded;
+    private Vector3 velocity;
+
     // NetworkVariables
+    [SerializeField]
     private NetworkVariable<Vector3> networkPosition = new NetworkVariable<Vector3>(
-        default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
-    private NetworkVariable<Vector3> networkVelocity = new NetworkVariable<Vector3>(
         default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     private void Start()
@@ -28,7 +27,6 @@ public class PlayerMovement : NetworkBehaviour
 
         // Add callback for sync
         networkPosition.OnValueChanged += OnNetworkPositionChanged;
-        networkVelocity.OnValueChanged += OnNetworkVelocityChanged;
     }
 
     private void Update()
@@ -37,67 +35,53 @@ public class PlayerMovement : NetworkBehaviour
 
         isGrounded = controller.isGrounded;
 
-        // Get input 
+        // Get input for movement
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
         Vector3 move = transform.right * x + transform.forward * z;
 
+        // Apply movement 
         if (move.magnitude > 0.01f)
         {
-            controller.Move(move * speed * Time.deltaTime);
+            controller.Move(move * speed * Time.deltaTime);  // Move character using CharacterController
         }
 
-        // Jump
+
+        // Apply gravity 
+        if (!isGrounded)
+        {
+            velocity.y += gravity * Time.deltaTime;  // Apply gravity if not grounded
+        }
+        else
+        {
+            velocity.y = -2f;  // Small value to keep player grounded
+        }
+        // Apply jump 
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            Debug.Log("JUMP");
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity); // Apply jump force
         }
 
-        // Each 10 frame update the network variables
-        if (Time.frameCount % 5 == 0)
-        {
-            networkPosition.Value = transform.position;
-            networkVelocity.Value = velocity;
-        }
+        // Apply movement with gravity and jump
+        controller.Move(velocity * Time.deltaTime);
+
+        // Update position on network
+        networkPosition.Value = transform.position;
     }
 
-    private void FixedUpdate()
-    {
-        if (!IsOwner) return;
-
-        // If the player on the ground
-        if (isGrounded && velocity.y < 0)
-        {
-            velocity.y = -1f; // Keep the character grounded
-        }
-
-        // Apply gravity
-        velocity.y += gravity * Time.fixedDeltaTime;
-        controller.Move(velocity * Time.fixedDeltaTime);
-    }
-
+    // Change on non-owner clients
     private void OnNetworkPositionChanged(Vector3 oldValue, Vector3 newValue)
     {
         if (!IsOwner)
         {
+            
             transform.position = newValue;
         }
     }
 
-    private void OnNetworkVelocityChanged(Vector3 oldValue, Vector3 newValue)
+    private void OnDestroy()
     {
-        if (!IsOwner)
-        {
-            velocity = newValue;
-            controller.Move(velocity * Time.deltaTime);
-        }
-    }
-    public override void OnDestroy()
-    {
-        // Unsubscribe from network variable events
         networkPosition.OnValueChanged -= OnNetworkPositionChanged;
-        networkVelocity.OnValueChanged -= OnNetworkVelocityChanged;
-
-        base.OnDestroy();  // Make sure to call the base class OnDestroy
     }
 }

@@ -17,19 +17,19 @@ public class Vision : NetworkBehaviour
     {
         if (IsOwner)
         {
-            // Lock the mouse only for the owning player
+            // Lock the mouse only for owner
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
 
-        // Register callbacks for changes to NetworkVariables
+        // Add callback for sync
         xRota.OnValueChanged += OnXRotationChanged;
         yRota.OnValueChanged += OnYRotationChanged;
     }
 
     private void Update()
     {
-        if (!IsOwner) return; // Only owner can control vision
+        if (!IsOwner) return; 
 
         // Toggle cursor lock state
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -54,7 +54,7 @@ public class Vision : NetworkBehaviour
         xRota.Value = Mathf.Clamp(xRota.Value, topClamp, bottomClamp);
         yRota.Value += mouseX;
 
-        // Apply rotation to the owning player
+        // Apply rotation 
         UpperBody.localRotation = Quaternion.Euler(xRota.Value, 0f, 0f);
         transform.rotation = Quaternion.Euler(0f, yRota.Value, 0f);
     }
@@ -68,21 +68,20 @@ public class Vision : NetworkBehaviour
 
     private void OnXRotationChanged(float oldValue, float newValue)
     {
-        // Apply new rotation for non-owner clients
+        // Change on non-owner clients
         UpperBody.localRotation = Quaternion.Euler(newValue, 0f, 0f);
     }
 
     private void OnYRotationChanged(float oldValue, float newValue)
     {
-        // Apply new rotation for non-owner clients
+        // Change on non-owner clients
         transform.rotation = Quaternion.Euler(0f, newValue, 0f);
     }
-    public override void OnDestroy()
+    private void OnDestroy()
     {
-        // Unregister callbacks to prevent memory leaks
         xRota.OnValueChanged -= OnXRotationChanged;
         yRota.OnValueChanged -= OnYRotationChanged;
 
-        base.OnDestroy();
+        
     }
 }
