@@ -40,19 +40,14 @@ public class PlayerMovement : NetworkBehaviour
         float z = Input.GetAxis("Vertical");
         Vector3 move = transform.right * x + transform.forward * z;
 
-        // Apply movement
+        // Apply movement 
         if (move.magnitude > 0.01f)
         {
             controller.Move(move * speed * Time.deltaTime);  // Move character using CharacterController
         }
 
-        // Jumping logic
-        if (Input.GetButtonDown("Jump") && isGrounded)
-        {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity); // Apply jump force
-        }
 
-        // Apply gravity
+        // Apply gravity 
         if (!isGrounded)
         {
             velocity.y += gravity * Time.deltaTime;  // Apply gravity if not grounded
@@ -60,6 +55,12 @@ public class PlayerMovement : NetworkBehaviour
         else
         {
             velocity.y = -2f;  // Small value to keep player grounded
+        }
+        // Apply jump 
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            Debug.Log("JUMP");
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity); // Apply jump force
         }
 
         // Apply movement with gravity and jump
@@ -69,20 +70,18 @@ public class PlayerMovement : NetworkBehaviour
         networkPosition.Value = transform.position;
     }
 
+    // Change on non-owner clients
     private void OnNetworkPositionChanged(Vector3 oldValue, Vector3 newValue)
     {
         if (!IsOwner)
         {
-            // Update position of this player based on the networked value
+            
             transform.position = newValue;
         }
     }
 
-    public override void OnDestroy()
+    private void OnDestroy()
     {
-        // Unsubscribe from network variable events
         networkPosition.OnValueChanged -= OnNetworkPositionChanged;
-
-        base.OnDestroy();  // Make sure to call the base class OnDestroy
     }
 }
