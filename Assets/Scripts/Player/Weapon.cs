@@ -1,11 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UIElements;
 
 public class Weapon : MonoBehaviour
 {
+    const float AIMRECOILUP = 0f;
+    const float RECOILUP = 0.1f;
+    [Header("camera and Aiming")]
     [SerializeField] private Camera playerCamera;
-    //weapon
+    [SerializeField] private Transform aimSpot;
+    [SerializeField] private bool isAiming = false;
+    [SerializeField] private float aimSpeed = 10f;
+    
+    private Vector3 defaultCameraPosition;
+    private Vector3 currentCameraVelocity = Vector3.zero;
+
+    [Space]
+    [Header("Weapon")]
     [SerializeField] private int currentAmmo = 15;
+    [SerializeField] private int maxAmmo = 15;
     [SerializeField] private enum Shootmode
     {
         Single,
@@ -14,32 +27,56 @@ public class Weapon : MonoBehaviour
     };
     [SerializeField] private Shootmode currentShootingMode;
     [SerializeField] private float spreadIntensity = 3;
-    //bullet
+    [Space]
+    [Header("Bullet")]
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform bulletSpawn;
     [SerializeField] private float bulletVelocity = 30;
     [SerializeField] private float bulletPrefabLifeTime = 3f;
-    // shotting
+    [Space]
+    [Header("Shooting")]
+    [SerializeField] private float shootingDelay = 1f;
     [SerializeField] private bool isShooting, ready2Shoot;
     [SerializeField] private bool allowReset = true;
-    [SerializeField] private float shootingDelay = 1f;
-    // burst
+    
+    [Space]
+    [Header("Burst")]
     [SerializeField] private int bulletPerBurst = 3;
     [SerializeField] private int currentBulletInBurst = 0 ;
     [SerializeField] private float burstDelay = 0.2f;
+    [Space]
+    [Header("Muzzle")]
+    [SerializeField] private GameObject muzzleEffect;
+    [Space]
+    [Header("Animator")]
+    [SerializeField] private Animator weaponAnimator;
+    [Space]
+    [Header("Recoil")]
 
+    [SerializeField] private float recoilLength = 1f;
+    [SerializeField] private float recoverLength = 2f;
+    [SerializeField] private float recoilUp = 0.2f, recoilBack = 0.2f;
 
+    
+    private Vector3 originalPosition;
+    private Vector3 recoilVelocity = Vector3.zero;
+
+    
+    [SerializeField] private bool recoiling = false;
+    [SerializeField] private bool recovering = false;
     private void Awake()
     {
         ready2Shoot = true;
         currentBulletInBurst = 0;
+        playerCamera = transform.parent.GetComponentInChildren<Camera>();
+        weaponAnimator = GetComponent<Animator>();
+        originalPosition = transform.localPosition;
     }
-    // Use this for initialization
-    void Start()
+    private void Start()
     {
-
+        defaultCameraPosition = playerCamera.transform.localPosition;
+        //Debug.Log("defaultCamePos" + defaultCameraPosition);
     }
-
     // Update is called once per frame
     void Update()
     {
@@ -58,10 +95,36 @@ public class Weapon : MonoBehaviour
             currentBulletInBurst = 0; 
             FireWeapon();
         }
-
+        if (Input.GetKeyDown(KeyCode.R) && currentAmmo < maxAmmo)
+        {
+            // Todo: reload weapon
+        }
+        if (recoiling)
+        {
+            Recoil();
+        }
+        if (recovering)
+        {
+            Recovering();
+        }
+        if (Input.GetKey(KeyCode.Mouse1)) // hold right mouse
+        {
+            isAiming = true;
+        }
+        else if (Input.GetKeyUp(KeyCode.Mouse1)) // release right mouse
+        {
+            isAiming = false;
+        }
+        HandleAiming();
+        
     }
     private void FireWeapon()
     {
+        recoiling = true;
+        recovering = false;
+        // muzzle effect
+        muzzleEffect.GetComponent<ParticleSystem>().Play();
+        weaponAnimator.SetTrigger("Shoot");
         ready2Shoot = false;
         Vector3 shootingDirection = CalcShootingDirectionAndSpread().normalized;
         Debug.Log("the direction is" + shootingDirection);
@@ -91,6 +154,55 @@ public class Weapon : MonoBehaviour
     {
         ready2Shoot = true;
         allowReset = true;
+    }
+    void Recoil()
+    {
+        Vector3 finalPosition = new Vector3(originalPosition.x, originalPosition.y + recoilUp, originalPosition.z - recoilBack);
+        transform.localPosition =
+            Vector3.SmoothDamp(transform.localPosition, finalPosition, ref recoilVelocity, recoilLength);
+        if (Vector3.Distance(transform.localPosition, finalPosition) < 0.01f)
+        {
+            recoiling = false;
+            recovering = true; 
+        }
+
+    }
+    void Recovering()
+    {
+        Vector3 finalPosition = originalPosition;
+        transform.localPosition =
+            Vector3.SmoothDamp(transform.localPosition, finalPosition, ref recoilVelocity, recoverLength);
+        if (Vector3.Distance(transform.localPosition, finalPosition) < 0.01f)
+        {
+            recoiling = false;
+            recovering = false;
+        }
+
+    }
+    void HandleAiming()
+    {
+        if (isAiming)
+        {
+            recoilUp = AIMRECOILUP;
+            // Di chuyển camera từ từ tới AimSpot
+            playerCamera.transform.position = Vector3.SmoothDamp(
+                playerCamera.transform.position,
+                aimSpot.position,
+                ref currentCameraVelocity,
+                1f / aimSpeed 
+            );
+        }
+        else
+        {
+            recoilUp = RECOILUP;  
+            // Trả camera về vị trí ban đầu
+            playerCamera.transform.localPosition = Vector3.SmoothDamp(
+                playerCamera.transform.localPosition,
+                defaultCameraPosition,
+                ref currentCameraVelocity,
+                1f / aimSpeed
+            );
+        }
     }
     private Vector3 CalcShootingDirectionAndSpread()
     {

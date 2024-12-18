@@ -2,75 +2,95 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class UIManager : MonoBehaviour
+public class UIManager : MonoBehaviourPunCallbacks
 {
+    [Header("UI Buttons")]
     public Button hostButton;
     public Button joinButton;
     public Button quickJoinButton;
-    public TMP_InputField joinInputField;
-    public TMP_InputField usernameInputField;
 
-    public Canvas layout1;  // Canvas 1
-    public Canvas layout2;  // Canvas 2
+    [Header("UI Input Fields")]
+    public TMP_InputField joinInputField;       
+    public TMP_InputField usernameInputField;   
+
+    [Header("UI Layouts")]
+    public Canvas layout1;  // layout inputName
+    public Canvas layout2;  // Layout choose room
 
     private void Start()
     {
-        hostButton.onClick.AddListener(HostLobby);
-        joinButton.onClick.AddListener(() => JoinLobby(joinInputField.text));
-        quickJoinButton.onClick.AddListener(QuickJoinLobby);
+        // Gắn sự kiện cho các button và input
+        hostButton.onClick.AddListener(HostRoom);
+        joinButton.onClick.AddListener(() => JoinRoom(joinInputField.text));
+        quickJoinButton.onClick.AddListener(QuickJoinRoom);
         usernameInputField.onSubmit.AddListener(SubmitName);
-        joinInputField.onSubmit.AddListener(JoinLobby);
-    }
 
-    private async void SubmitName(string inputText)
-    {
-        // authentication
-        try
+        // Kết nối Photon khi bắt đầu
+        if (!PhotonNetwork.IsConnected)
         {
-            InitializationOptions initOptions = new InitializationOptions();
-            Debug.Log($"inpuText is {inputText}");
-            initOptions.SetProfile(inputText);
-           
-            await UnityServices.InitializeAsync(initOptions);
-           
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            Debug.Log($"Successfully authenticated and initialized as {usernameInputField.text}");
-
-            layout1.gameObject.SetActive(false);
-            layout2.gameObject.SetActive(true);
-        }
-        catch (Exception e)
-        {
-            Debug.Log($"Initialization failed: {e.Message}");
+            PhotonNetwork.ConnectUsingSettings();
+            Debug.Log("Connecting to Photon...");
         }
     }
 
-    private void HostLobby()
+    private void SubmitName(string playerName)
     {
-        Debug.Log("Hosting lobby...");
-        LobbyAndRelayManager.Instance.HostLobbyAsync();
-    }
-
-    private void JoinLobby(string lobbyCode)
-    {
-        if (string.IsNullOrEmpty(lobbyCode))
+        if (string.IsNullOrEmpty(playerName))
         {
-            Debug.Log("Please enter a valid lobby code.");
+            Debug.Log("Player name cannot be empty.");
             return;
         }
 
-        Debug.Log("Joining lobby with code: " + lobbyCode);
-        LobbyAndRelayManager.Instance.JoinLobbyAsync(lobbyCode);
+        PhotonNetwork.NickName = playerName;
+        Debug.Log($"Player name set to: {playerName}");
+
+        layout1.gameObject.SetActive(false);
+        layout2.gameObject.SetActive(true); 
     }
 
-    private void QuickJoinLobby()
+    //  Host Room
+    private void HostRoom()
     {
-        Debug.Log("Quick joining a lobby...");
-        // TODO: Implement random or automatic joining logic here
+        string roomName = "Room_" + UnityEngine.Random.Range(1000, 9999); // Tạo tên phòng ngẫu nhiên
+        RoomOptions roomOptions = new RoomOptions { MaxPlayers = 10 };   // Giới hạn 10 người chơi
+        PhotonNetwork.CreateRoom(roomName, roomOptions);
+        Debug.Log($"Creating room: {roomName}");
     }
 
-    
+    // Tham gia phòng với mã phòng cụ thể
+    private void JoinRoom(string roomCode)
+    {
+        if (string.IsNullOrEmpty(roomCode))
+        {
+            Debug.Log("Room code cannot be empty.");
+            return;
+        }
+
+        PhotonNetwork.JoinRoom(roomCode);
+        Debug.Log($"Joining room: {roomCode}");
+    }
+
+    // Tham gia phòng ngẫu nhiên
+    private void QuickJoinRoom()
+    {
+        Debug.Log("Attempting to join a random room...");
+        PhotonNetwork.JoinRandomRoom();
+    }
+
+    // ---------------- PHOTON CALLBACKS ----------------
+
+    public override void OnConnectedToMaster()
+    {
+        Debug.Log("Connected to Photon Master Server.");
+    }
+
+    public override void OnJoinedRoom()
+    {
+        Debug.Log($"Successfully joined room: {PhotonNetwork.CurrentRoom.Name}");
+        // Chuyển sang Scene Game nếu cần
+        PhotonNetwork.LoadLevel("Game");
+    }
 }

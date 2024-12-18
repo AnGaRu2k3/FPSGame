@@ -2,14 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using IngameDebugConsole;
-using Unity.Netcode;
-using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
 public class NetWorkCommandLine : MonoBehaviour
 {
     static public NetWorkCommandLine Instance { get; private set; }
-
     private void Awake()
     {
         if (Instance != null)
@@ -22,57 +21,92 @@ public class NetWorkCommandLine : MonoBehaviour
     }
 
     private void Start()
-    {
+    {       
+        PhotonNetwork.ConnectUsingSettings();
+        Debug.Log("Connecting to Photon server...");
     }
-
-    [ConsoleMethod("start-host", "Start the server as Host")]
-    public static void StartHost()
+    [ConsoleMethod("create-room", "create room with name and maxplayer")]
+    public static void CreateRoom(string roomName, int maxPlayers)
     {
-        NetworkManager.Singleton.StartHost();
-        Debug.Log("Host started");
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = (byte)maxPlayers;
+        roomOptions.IsOpen = true;
+        roomOptions.IsVisible = true;
+
+        // Create room
+        PhotonNetwork.CreateRoom(roomName, roomOptions);
+        Debug.Log($"Room {roomName} created with max players: {maxPlayers}");
+
+        
     }
-
-    [ConsoleMethod("start-client", "Start the client")]
-    public static void StartClient()
+    [ConsoleMethod("leave-room", "leave room")]
+    public static void LeaveRoom()
     {
-        NetworkManager.Singleton.StartClient();
-        Debug.Log("Client started");
-    }
-
-    [ConsoleMethod("create-lobby", "Create a new lobby")]
-    public static void CreateLobby(string playerName)
-    {
-        // todo with relay
-        Debug.Log($"Creating lobby for player: {playerName}");
-    }
-
-    // Command to leave the host
-    [ConsoleMethod("leave-host", "Stop the host and disconnect")]
-    public static void LeaveHost()
-    {
-        if (NetworkManager.Singleton.IsHost)
+        if (PhotonNetwork.IsMasterClient)
         {
-            NetworkManager.Singleton.Shutdown(); 
-            Debug.Log("Host has left the game");
+            PhotonNetwork.LoadLevel("Home"); 
+            PhotonNetwork.LeaveRoom();  
+            Debug.Log("Host has left the game.");
+        }
+        else if (PhotonNetwork.InRoom)
+        {
+            PhotonNetwork.LeaveRoom();  
+            Debug.Log("Client has left the game.");
         }
         else
         {
-            Debug.Log("You are not the host, cannot leave as host.");
+            Debug.Log("You are not in a room.");
         }
     }
-
-    // Command to leave the client
-    [ConsoleMethod("leave-client", "Disconnect the client from the server")]
-    public static void LeaveClient()
+    [ConsoleMethod("check-status", "Check current network status (host or client)")]
+    public static void CheckStatus()
     {
-        if (NetworkManager.Singleton.IsClient)
+        if (PhotonNetwork.IsConnected)
         {
-            NetworkManager.Singleton.Shutdown(); 
-            Debug.Log("Client has left the game");
+            if (PhotonNetwork.IsMasterClient)
+            {
+                Debug.Log("You are the Host.");
+            }
+            else
+            {
+                Debug.Log("You are a Client.");
+            }
         }
         else
         {
-            Debug.Log("You are not connected as a client, cannot leave.");
+            Debug.Log("Not connected to Photon.");
         }
     }
+    [ConsoleMethod("start-game", "Start the game (Only for Host)")]
+    public static void StartGame()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("Starting game...");
+            PhotonNetwork.LoadLevel("Game");  
+        }
+        else
+        {
+            Debug.Log("Only the Host can start the game.");
+        }
+    }
+    [ConsoleMethod("join-room", "join room by name")]
+    public static void JoinRoom(string roomName)
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            Debug.Log("Already in a room. Please leave the current room before joining another.");
+            return;
+        }
+        PhotonNetwork.JoinRoom(roomName);
+        Debug.Log($"join room: {roomName}");
+
+    }
+
+
+
+
+
+
+
 }
