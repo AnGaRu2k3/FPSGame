@@ -1,27 +1,26 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Unity.Netcode;
-using Unity.VisualScripting;
+using System.Collections.Generic;
+using Photon.Pun;
 
-public class PlayerControllerUI : NetworkBehaviour
+public class PlayerControllerUI : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private MonoBehaviour[] playerScripts;
-    [SerializeField] private GameObject player;
-    [SerializeField] private Camera playerCamera; 
+    [SerializeField] private List<MonoBehaviour> playerScripts = new List<MonoBehaviour>();
+    [SerializeField] private Camera playerCamera;
 
     void Start()
     {
-        //player = transform.parent.gameObject;
-        //playerCamera = player.GetComponentInChildren<Camera>();
-        playerScripts = player.GetComponentsInChildren<MonoBehaviour>();
-        if (IsOwner)
+        GameObject player = transform.parent.gameObject;
+        playerScripts.Add(player.GetComponentInChildren<PlayerMovement>());
+        playerScripts.Add(player.GetComponentInChildren<Vision>());
+        playerScripts.Add(player.GetComponentInChildren<Weapon>());
+
+        if (photonView.IsMine)
         {
             Camera.main.gameObject.SetActive(false);
-            playerCamera = Camera.main;
-
             if (playerCamera != null)
             {
-                playerCamera.gameObject.SetActive(true);  
+                playerCamera.gameObject.SetActive(true);
             }
             EnableControls(true);
         }
@@ -34,7 +33,7 @@ public class PlayerControllerUI : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner) return;
+        if (!photonView.IsMine) return;
 
         if (Cursor.lockState == CursorLockMode.Locked)
         {
@@ -60,7 +59,6 @@ public class PlayerControllerUI : NetworkBehaviour
     {
         foreach (var script in playerScripts)
         {
-            // If the script is not the PlayerControllerUI itself
             if (script != this)
             {
                 script.enabled = status;
