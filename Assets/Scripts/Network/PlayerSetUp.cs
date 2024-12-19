@@ -10,12 +10,8 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
     {
         base.OnJoinedRoom();
         GameObject player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
-        
+        player.GetComponentInChildren<Weapon>().SetLocalPlayer();
         playerUI.GetComponent<PlayerUI>().SetPlayer(player);
-    }
-    public void IsLocalPlayer()
-    {
-        
     }
 
 }

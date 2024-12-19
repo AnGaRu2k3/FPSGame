@@ -1,14 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UIElements;
-
 public class Weapon : MonoBehaviour
 {
     const float AIMRECOILUP = 0f;
     const float RECOILUP = 0.1f;
     const float AIMRECOILBACK = 0f;
     const float RECOILBACK = 0.2f;
-    [Header("camera and Aiming")]
+
+    [Header("Network")]
+    [SerializeField] private bool localPlayer = false;
+    [SerializeField] private GameObject player;
+    [SerializeField] private PlayerSync playerSync;
+    [Header("Camera and Aiming")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Transform aimSpot;
     [SerializeField] private bool isAiming = false;
@@ -20,7 +24,8 @@ public class Weapon : MonoBehaviour
 
     private Vector3 defaultCameraPosition;
     private Vector3 currentCameraVelocity = Vector3.zero;
-
+    [Header("Reload")]
+    [SerializeField] private bool reloading = false;
     [Space]
     [Header("Weapon")]
     [SerializeField] private int ammo = 60;
@@ -34,12 +39,12 @@ public class Weapon : MonoBehaviour
     
     [SerializeField] private Shootmode currentShootingMode;
     [SerializeField] private float spreadIntensity = 3;
+    
     [Space]
     [Header("Bullet")]
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform bulletSpawn;
     [SerializeField] private float bulletVelocity = 30;
-    [SerializeField] private float bulletPrefabLifeTime = 3f;
     [Space]
     [Header("Shooting")]
     [SerializeField] private float shootingDelay = 1f;
@@ -51,9 +56,9 @@ public class Weapon : MonoBehaviour
     [SerializeField] private int bulletPerBurst = 3;
     [SerializeField] private int currentBulletInBurst = 0 ;
     [SerializeField] private float burstDelay = 0.2f;
-    [Space]
-    [Header("Muzzle")]
-    [SerializeField] private GameObject muzzleEffect;
+    //[Space]
+    //[Header("Muzzle")]
+    //[SerializeField] private GameObject muzzleEffect;
     [Space]
     [Header("Animator")]
     [SerializeField] private Animator weaponAnimator;
@@ -81,12 +86,16 @@ public class Weapon : MonoBehaviour
     }
     private void Start()
     {
+        playerSync = player.GetComponent<PlayerSync>();
         defaultCameraPosition = playerCamera.transform.localPosition;
         //Debug.Log("defaultCamePos" + defaultCameraPosition);
     }
     // Update is called once per frame
     void Update()
     {
+        // if not the owner player
+        if (!localPlayer) return;
+
         if (currentShootingMode == Shootmode.Auto) 
         {
             // hold left mouse  
@@ -97,9 +106,10 @@ public class Weapon : MonoBehaviour
             // click left mouse 
             isShooting = Input.GetKeyDown(KeyCode.Mouse0);
         }
-        // if Run Out of Ammo or Press R 
-        if (ammo == 0 || (Input.GetKeyDown(KeyCode.R) && ammo < magAmmo))
+        // condition reload 
+        if ((reloading == false && ammo == 0)|| (Input.GetKeyDown(KeyCode.R) && ammo < magAmmo))
         {
+            reloading = true;
             weaponAnimator.SetTrigger("Reload");
         }
         if (ready2Shoot && isShooting)
@@ -116,7 +126,7 @@ public class Weapon : MonoBehaviour
         {
             Recovering();
         }
-        if (Input.GetKey(KeyCode.Mouse1) && ammo != 0) // hold right mouse
+        if (Input.GetKey(KeyCode.Mouse1)) // hold right mouse
         {
             if (isAiming == false)
             {
@@ -128,7 +138,7 @@ public class Weapon : MonoBehaviour
             }
             isAiming = true;
         }   
-        if (Input.GetKeyUp(KeyCode.Mouse1) || ammo == 0) // release right mouse
+        if (Input.GetKeyUp(KeyCode.Mouse1) || reloading) // release right mouse
         {
             if (isAiming == true)
             {
@@ -141,31 +151,30 @@ public class Weapon : MonoBehaviour
             isAiming = false;
         }
         
-        
         HandleAiming();
         
     }
     private void FireWeapon()
     {
-        if (ammo == 0) return; 
+        if (ammo == 0) return;
+        // nếu đang nạp đ
+        if (reloading == true)
+        {
+            weaponAnimator.SetTrigger("CancelReload");
+            reloading = false;
+        }
         ammo --;
         recoiling = true;
         recovering = false;
-        // muzzle effect
-        muzzleEffect.GetComponent<ParticleSystem>().Play();
+        
         weaponAnimator.SetTrigger("Shoot");
         ready2Shoot = false;
         Vector3 shootingDirection = CalcShootingDirectionAndSpread().normalized;
         Debug.Log("the direction is" + shootingDirection);
+        // sync throuth all client the bullet
 
-        // init and shoot bullet
-        GameObject bullet = Instantiate(bulletPrefab, bulletSpawn.position, Quaternion.identity);
 
-        // make the bullet go on the shooting direction
-        bullet.transform.forward = shootingDirection;
-        bullet.GetComponent<Rigidbody>().AddForce(shootingDirection * bulletVelocity, ForceMode.Impulse);
-        StartCoroutine(DestroyBulletAfter(bullet, bulletPrefabLifeTime));
-
+        playerSync.ApplyToShoot(shootingDirection, bulletSpawn.position, bulletVelocity);
         // rerun this func until the bulletPerBurst == currentBulletInBurst + 1
         if (currentShootingMode == Shootmode.Burst && currentBulletInBurst + 1 < bulletPerBurst)
         {
@@ -281,13 +290,13 @@ public class Weapon : MonoBehaviour
     }
     public void ReloadComplete()
     {
-        ammo = magAmmo; 
+        ammo = magAmmo;
+        reloading = false;
+        weaponAnimator.SetTrigger("CancelReload");
         Debug.Log("Reload Complete!");
     }
-    private IEnumerator DestroyBulletAfter(GameObject bullet, float delay)
+    public void SetLocalPlayer()
     {
-        yield return new WaitForSeconds(delay);
-        Destroy(bullet);
-
+        localPlayer = true;
     }
 }
