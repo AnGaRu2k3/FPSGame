@@ -4,12 +4,14 @@ using Photon.Pun;
 public class PlayerSetUp : MonoBehaviourPunCallbacks
 {
     [SerializeField] private GameObject playerPrefab;
-    [Space]
     [SerializeField] Transform spawnPoint;
+    [SerializeField] GameObject playerUI;
     public override void OnJoinedRoom()
     {
         base.OnJoinedRoom();
-        PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
+        GameObject player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
+        
+        playerUI.GetComponent<PlayerUI>().SetPlayer(player);
     }
     public void IsLocalPlayer()
     {

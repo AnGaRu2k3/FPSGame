@@ -6,25 +6,32 @@ public class Weapon : MonoBehaviour
 {
     const float AIMRECOILUP = 0f;
     const float RECOILUP = 0.1f;
+    const float AIMRECOILBACK = 0f;
+    const float RECOILBACK = 0.2f;
     [Header("camera and Aiming")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Transform aimSpot;
     [SerializeField] private bool isAiming = false;
     [SerializeField] private float aimSpeed = 10f;
-    
+
+    [SerializeField] private float zoomOut = 60f; 
+    [SerializeField] private float zoomIn = 40f;     
+    [SerializeField] private float zoomSpeed = 10f; 
+
     private Vector3 defaultCameraPosition;
     private Vector3 currentCameraVelocity = Vector3.zero;
 
     [Space]
     [Header("Weapon")]
-    [SerializeField] private int currentAmmo = 15;
-    [SerializeField] private int maxAmmo = 15;
+    [SerializeField] private int ammo = 60;
+    [SerializeField] private int magAmmo = 60;
     [SerializeField] private enum Shootmode
     {
         Single,
         Burst,
         Auto
     };
+    
     [SerializeField] private Shootmode currentShootingMode;
     [SerializeField] private float spreadIntensity = 3;
     [Space]
@@ -55,7 +62,7 @@ public class Weapon : MonoBehaviour
 
     [SerializeField] private float recoilLength = 1f;
     [SerializeField] private float recoverLength = 2f;
-    [SerializeField] private float recoilUp = 0.2f, recoilBack = 0.2f;
+    [SerializeField] private float recoilUp = 0.1f, recoilBack = 0.2f;
 
     
     private Vector3 originalPosition;
@@ -90,15 +97,17 @@ public class Weapon : MonoBehaviour
             // click left mouse 
             isShooting = Input.GetKeyDown(KeyCode.Mouse0);
         }
+        // if Run Out of Ammo or Press R 
+        if (ammo == 0 || (Input.GetKeyDown(KeyCode.R) && ammo < magAmmo))
+        {
+            weaponAnimator.SetTrigger("Reload");
+        }
         if (ready2Shoot && isShooting)
         {
             currentBulletInBurst = 0; 
             FireWeapon();
         }
-        if (Input.GetKeyDown(KeyCode.R) && currentAmmo < maxAmmo)
-        {
-            // Todo: reload weapon
-        }
+        
         if (recoiling)
         {
             Recoil();
@@ -107,19 +116,39 @@ public class Weapon : MonoBehaviour
         {
             Recovering();
         }
-        if (Input.GetKey(KeyCode.Mouse1)) // hold right mouse
+        if (Input.GetKey(KeyCode.Mouse1) && ammo != 0) // hold right mouse
         {
+            if (isAiming == false)
+            {
+                // Aim setting
+                playerCamera.nearClipPlane = 0.03f;
+                spreadIntensity /= 10;
+                recoilUp = AIMRECOILUP;
+                recoilBack = AIMRECOILBACK;
+            }
             isAiming = true;
-        }
-        else if (Input.GetKeyUp(KeyCode.Mouse1)) // release right mouse
+        }   
+        if (Input.GetKeyUp(KeyCode.Mouse1) || ammo == 0) // release right mouse
         {
+            if (isAiming == true)
+            {
+                // no Aim setting
+                playerCamera.nearClipPlane = 0.3f;
+                spreadIntensity *= 10;
+                recoilUp = RECOILUP;
+                recoilBack = RECOILBACK;
+            }
             isAiming = false;
         }
+        
+        
         HandleAiming();
         
     }
     private void FireWeapon()
     {
+        if (ammo == 0) return; 
+        ammo --;
         recoiling = true;
         recovering = false;
         // muzzle effect
@@ -183,26 +212,48 @@ public class Weapon : MonoBehaviour
     {
         if (isAiming)
         {
-            recoilUp = AIMRECOILUP;
-            // Di chuyển camera từ từ tới AimSpot
+            
+            // move camera to aim spot
             playerCamera.transform.position = Vector3.SmoothDamp(
                 playerCamera.transform.position,
                 aimSpot.position,
                 ref currentCameraVelocity,
-                1f / aimSpeed 
+                1f / aimSpeed
+            );
+
+            // zoom in
+            playerCamera.fieldOfView = Mathf.Lerp(
+                playerCamera.fieldOfView,
+                zoomIn,
+                Time.deltaTime * zoomSpeed
             );
         }
         else
         {
-            recoilUp = RECOILUP;  
-            // Trả camera về vị trí ban đầu
+            
+            // Move camera to the local position
             playerCamera.transform.localPosition = Vector3.SmoothDamp(
                 playerCamera.transform.localPosition,
                 defaultCameraPosition,
                 ref currentCameraVelocity,
                 1f / aimSpeed
             );
+
+            // zoom out
+            playerCamera.fieldOfView = Mathf.Lerp(
+                playerCamera.fieldOfView,
+                zoomOut,
+                Time.deltaTime * zoomSpeed
+            ) ;
         }
+    }
+    public int GetAmmo()
+    {
+        return ammo;
+    }
+    public int GetMagAmmo()
+    {
+        return magAmmo;
     }
     private Vector3 CalcShootingDirectionAndSpread()
     {
@@ -227,6 +278,11 @@ public class Weapon : MonoBehaviour
 
         
         return direction + spread;
+    }
+    public void ReloadComplete()
+    {
+        ammo = magAmmo; 
+        Debug.Log("Reload Complete!");
     }
     private IEnumerator DestroyBulletAfter(GameObject bullet, float delay)
     {
