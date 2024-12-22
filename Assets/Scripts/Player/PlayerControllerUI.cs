@@ -13,7 +13,6 @@ public class PlayerControllerUI : MonoBehaviourPunCallbacks
         GameObject player = transform.parent.gameObject;
         playerScripts.Add(player.GetComponentInChildren<PlayerMovement>());
         playerScripts.Add(player.GetComponentInChildren<Vision>());
-        playerScripts.Add(player.GetComponentInChildren<Weapon>());
 
         if (photonView.IsMine)
         {
