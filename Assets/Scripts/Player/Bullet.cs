@@ -17,6 +17,12 @@ public class bullet : MonoBehaviour
             CreateBulletImpact(objectHit);
             Destroy(gameObject);
         }
+        if (objectHit.gameObject.CompareTag("Player"))
+        {
+            Debug.Log("bullet hit to other player");
+            GameObject player = objectHit.gameObject;
+            player.GetComponent<PlayerStatus>().DealDamage(30);
+        }
     }
     void CreateBulletImpact(Collision objectHit)
     {

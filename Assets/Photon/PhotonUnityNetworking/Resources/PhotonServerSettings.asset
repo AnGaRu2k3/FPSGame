@@ -41,6 +41,8 @@ MonoBehaviour:
   - RespawnSpaceship
   - ShootBullet
   - CreateEnemyDotOnMap
+  - Add
+  - DealDamage
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
