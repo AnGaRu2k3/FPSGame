@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 public class MenuController : MonoBehaviour
 {
     [Header("Volume Setting")]
@@ -17,6 +18,48 @@ public class MenuController : MonoBehaviour
     public string _newGameLevel;
     private string _levelToLoad;
     [SerializeField] private GameObject _hostGameDialog;
+
+    [Header("Graphics Setting")]
+    [SerializeField] private Slider brightnessSlider = null;
+    [SerializeField] private TMP_Text brightnessTextValue = null;
+    [SerializeField] private int defaultBrightness = 50;
+
+    private int _qualityLevel;
+    private bool _fullscreen;
+    private float _brightnessLevel;
+
+    [Header("Resolution Dropdowns")]
+    public TMP_Dropdown resolutionDropdown;
+    private Resolution[] resolutions;
+
+    private void Start()
+    {
+        resolutions = Screen.resolutions;
+        resolutionDropdown.ClearOptions();
+
+        List<string> options = new List<string>();
+        int currentResolutionIndex = 0;
+
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            string option = resolutions[i].width + " x " + resolutions[i].height;
+            options.Add(option);
+
+            if (resolutions[i].width == Screen.width && resolutions[i].height == Screen.height)
+            {
+                currentResolutionIndex = i;
+            }   
+        }
+        resolutionDropdown.AddOptions(options);
+        resolutionDropdown.value = currentResolutionIndex;
+        resolutionDropdown.RefreshShownValue();
+    }
+
+    public void setResolution(int resolutionIndex)
+    {
+        Resolution resolution = resolutions[resolutionIndex];
+        Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
+    }    
 
     public void HostGameDialogYes()
     {
@@ -55,5 +98,28 @@ public class MenuController : MonoBehaviour
         comfirmationPrompt.SetActive(true);
         yield return new WaitForSeconds(2);
         comfirmationPrompt.SetActive(false);
-    }    
+    }
+    
+    public void setBrightness(float brightness)
+    {
+      _brightnessLevel = brightness;
+       brightnessTextValue.text = brightness.ToString("0.0");
+    }
+
+    public void setQuality(int qualityIndex)
+    {
+        _qualityLevel = qualityIndex;
+    }
+
+    public void GraphicsApply()
+    {
+        PlayerPrefs.SetFloat("masterBrightness", _brightnessLevel);
+        // Change your brightness with your post processing or whateber it is
+
+
+        PlayerPrefs.SetInt("masterQuality", _qualityLevel);
+        QualitySettings.SetQualityLevel(_qualityLevel);
+
+        StartCoroutine(ConfirmmationBox());
+    }
 }
