@@ -2,3 +2,4 @@
 Assets/Maps/ filter=lfs diff=lfs merge=lfs -text
 *.fbx filter=lfs diff=lfs merge=lfs -text
 Assets/Prefabs/Character.fbx filter=lfs diff=lfs merge=lfs -text
+Assets/Prefabs/Character/Ch35_nonPBR@Idle.fbx filter=lfs diff=lfs merge=lfs -text

@@ -35,14 +35,14 @@ MonoBehaviour:
   StartInOfflineMode: 0
   RpcList:
   - ClickRpc
+  - CreateEnemyDotOnMap
+  - DealDamage
   - DestroyRpc
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
   - ShootBullet
-  - CreateEnemyDotOnMap
-  - Add
-  - DealDamage
+  - UpdateAnimationState
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

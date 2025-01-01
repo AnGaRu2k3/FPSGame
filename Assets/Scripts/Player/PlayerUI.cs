@@ -24,7 +24,7 @@ public class PlayerUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!player) return;
+        if (!player || !weapon) return;
         PlayerStatus playerStatus = player.GetComponent<PlayerStatus>();
         ammoStatus.text = $"{weapon.GetAmmo()} / {weapon.GetMagAmmo()}";
         // minimap follow player position and rotation
