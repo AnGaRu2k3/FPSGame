@@ -1,7 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
 
-public class CharacterMovement : MonoBehaviour
+public class CharacterMovement : MonoBehaviourPun
 {
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpHeight = 3f;
@@ -13,27 +13,50 @@ public class CharacterMovement : MonoBehaviour
     private Vector3 velocity;
     private bool isGrounded;
 
+    private float movementX;
+    private float movementZ;
+    private bool isJumping;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>(); 
-        if (!mainCamera) mainCamera = Camera.main; 
+        animator = GetComponent<Animator>();
+        controller.enabled = photonView.IsMine;
+        animator.enabled = true;
+
+        if (photonView.IsMine)
+        {
+            if (!mainCamera) mainCamera = Camera.main;
+        }
     }
 
     void Update()
-    { 
+    {
+        if (photonView.IsMine)
+        {
+            HandleMovement();
+            SyncAnimationState();
+        }
+        else
+        {
+            UpdateAnimation();
+        }
+    }
+
+    private void HandleMovement()
+    {
         isGrounded = controller.isGrounded;
 
         if (isGrounded && velocity.y < 0)
         {
-            velocity.y = -2f; // make grounded
+            velocity.y = -2f; // keep character on ground
         }
 
-        // GetInput
+        // get input
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        // convert to camera world
+        // convert to camera transform
         Vector3 forward = mainCamera.transform.forward;
         forward.y = 0;
         forward.Normalize();
@@ -43,26 +66,52 @@ public class CharacterMovement : MonoBehaviour
 
         Vector3 move = forward * vertical + right * horizontal;
 
-        // move by WASD 
         if (move.magnitude > 0.1f)
         {
             controller.Move(move * speed * Time.deltaTime);
-            //transform.forward = move; 
         }
 
-        // animation
-        animator.SetFloat("MovementX", horizontal, 0.1f, Time.deltaTime); 
-        animator.SetFloat("MovementZ", vertical, 0.1f, Time.deltaTime);
+        // sync animation
+        movementX = horizontal;
+        movementZ = vertical;
 
-        // Jump
+        // jump
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            animator.SetTrigger("Jump"); // Animation jump
+            isJumping = true;
         }
 
-        // Gravity
+        // gravity
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+        UpdateAnimation();
+    }
+
+    private void SyncAnimationState()
+    {
+        photonView.RPC("UpdateAnimationState", RpcTarget.Others, movementX, movementZ, isJumping);
+        isJumping = false; 
+    }
+
+    [PunRPC]
+    private void UpdateAnimationState(float x, float z, bool jumping)
+    {
+        movementX = x;
+        movementZ = z;
+        isJumping = jumping;
+        UpdateAnimation();
+    }
+
+    private void UpdateAnimation()
+    {
+        animator.SetFloat("MovementX", movementX, 0.1f, Time.deltaTime);
+        animator.SetFloat("MovementZ", movementZ, 0.1f, Time.deltaTime);
+
+        animator.SetBool("Jump", isJumping);
+        if (!isJumping && isGrounded)
+        {
+            animator.SetBool("Jump", false);
+        }
     }
 }
