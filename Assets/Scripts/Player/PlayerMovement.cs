@@ -47,8 +47,9 @@ public class PlayerMovement : MonoBehaviour
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity); // Apply jump force
         }
-
         // Apply movement with gravity and jump
         controller.Move(velocity * Time.deltaTime);
+
+        
     }
 }

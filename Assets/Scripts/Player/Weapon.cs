@@ -62,7 +62,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private GameObject muzzleEffect;
     [Space]
     [Header("Animator")]
-    [SerializeField] private Animator weaponAnimator;
+    [SerializeField] private Animator animator;
     [Space]
     [Header("Recoil")]
 
@@ -89,6 +89,7 @@ public class Weapon : MonoBehaviour
         playerSync = player.GetComponent<PlayerSync>();
         defaultCameraPosition = playerCamera.transform.position;
         recoidRigLayer.weight = currentRecoilRigValue;
+        animator = player.GetComponent<Animator>();
         //Debug.Log("defaultCamePos" + defaultCameraPosition);
     }
     // Update is called once per frame
@@ -111,9 +112,10 @@ public class Weapon : MonoBehaviour
         if ((reloading == false && ammo == 0)|| (Input.GetKeyDown(KeyCode.R) && ammo < magAmmo))
         {
             reloading = true;
-
+            playerSync.ApplyToReloadGun();
+            StartReloadAnimation();
         }
-        if (ready2Shoot && isShooting)
+        if (ready2Shoot && isShooting && !reloading)
         {
             currentBulletInBurst = 0; 
             FireWeapon();
@@ -158,10 +160,6 @@ public class Weapon : MonoBehaviour
     private void FireWeapon()
     {
         if (ammo == 0) return;
-        if (reloading == true)
-        {
-            reloading = false;
-        }
         ammo --;
         recoiling = true;
         recovering = false;
@@ -312,4 +310,8 @@ public class Weapon : MonoBehaviour
         freelookCamera = GameObject.Find("FreeLookCamera").GetComponent<CinemachineFreeLook>();
 
     }
+    public void StartReloadAnimation()
+    {
+        animator.SetTrigger("Reload");
+    } 
 }
