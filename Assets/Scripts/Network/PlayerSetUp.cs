@@ -17,6 +17,7 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         base.OnJoinedRoom();
+        Debug.Log("new player ");
         GameObject player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
         int ID = player.GetComponent<PhotonView>().ViewID;
         player.GetComponent<PlayerStatus>().SetID(ID);

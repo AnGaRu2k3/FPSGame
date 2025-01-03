@@ -19,13 +19,17 @@ public class NetWorkCommandLine : MonoBehaviourPunCallbacks
         Instance = this;
         DontDestroyOnLoad(this);
     }
+    public override void OnConnectedToMaster()
+    {
+        Debug.Log("Connected to Master server.");
+        Debug.Log("Current region is: " + PhotonNetwork.CloudRegion);
+    }
 
     private void Start()
     {       
         PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.ConnectToRegion("asia");
         Debug.Log("Connecting to Photon server...");
-        Debug.Log("region is " + PhotonNetwork.CloudRegion);
     }
     [ConsoleMethod("create-room", "create room with name and maxplayer")]
     public static void CreateRoom(string roomName, int maxPlayers)
