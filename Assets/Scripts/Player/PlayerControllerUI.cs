@@ -2,30 +2,25 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using Photon.Pun;
+using Cinemachine;
 
 public class PlayerControllerUI : MonoBehaviourPunCallbacks
 {
     [SerializeField] private List<MonoBehaviour> playerScripts = new List<MonoBehaviour>();
-    [SerializeField] private Camera playerCamera;
-
+    [SerializeField] private GameObject freelookCamera;
     void Start()
     {
-        GameObject player = transform.parent.gameObject;
-        playerScripts.Add(player.GetComponentInChildren<PlayerMovement>());
-        playerScripts.Add(player.GetComponentInChildren<Vision>());
+        freelookCamera = GameObject.Find("FreeLookCamera");
+        playerScripts.Add(gameObject.GetComponentInChildren<CharacterAiming>());
+        playerScripts.Add(gameObject.GetComponentInChildren<CharacterMovement>());
+        playerScripts.Add(gameObject.GetComponentInChildren<Weapon>());
 
         if (photonView.IsMine)
         {
-            Camera.main.gameObject.SetActive(false);
-            if (playerCamera != null)
-            {
-                playerCamera.gameObject.SetActive(true);
-            }
             EnableControls(true);
         }
         else
         {
-            playerCamera.gameObject.SetActive(false);
             EnableControls(false);
         }
     }
@@ -63,6 +58,7 @@ public class PlayerControllerUI : MonoBehaviourPunCallbacks
                 script.enabled = status;
             }
         }
+        freelookCamera.SetActive(status);
     }
 
     bool IsPointerOverUI()

@@ -6,7 +6,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class NetWorkCommandLine : MonoBehaviour
+public class NetWorkCommandLine : MonoBehaviourPunCallbacks
 {
     static public NetWorkCommandLine Instance { get; private set; }
     private void Awake()
@@ -23,7 +23,9 @@ public class NetWorkCommandLine : MonoBehaviour
     private void Start()
     {       
         PhotonNetwork.ConnectUsingSettings();
+        PhotonNetwork.ConnectToRegion("asia");
         Debug.Log("Connecting to Photon server...");
+        Debug.Log("region is " + PhotonNetwork.CloudRegion);
     }
     [ConsoleMethod("create-room", "create room with name and maxplayer")]
     public static void CreateRoom(string roomName, int maxPlayers)
@@ -44,7 +46,7 @@ public class NetWorkCommandLine : MonoBehaviour
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            PhotonNetwork.LoadLevel("Home"); 
+            //PhotonNetwork.LoadLevel("Home"); 
             PhotonNetwork.LeaveRoom();  
             Debug.Log("Host has left the game.");
         }
@@ -98,9 +100,18 @@ public class NetWorkCommandLine : MonoBehaviour
             Debug.Log("Already in a room. Please leave the current room before joining another.");
             return;
         }
+
         PhotonNetwork.JoinRoom(roomName);
         Debug.Log($"join room: {roomName}");
 
+    }
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        base.OnRoomListUpdate(roomList);
+        foreach(RoomInfo room in roomList)
+        {
+            Debug.Log("room name is: " + room.Name);
+        }
     }
 
 
