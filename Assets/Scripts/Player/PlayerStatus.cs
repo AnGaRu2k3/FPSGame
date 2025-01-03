@@ -25,5 +25,9 @@ public class PlayerStatus : MonoBehaviourPun
     {
         health -= 30;
         healthBar.value -= damage;
+        if (health <= 0)
+        {
+            // Todo: respawn player
+        }
     }
 }
