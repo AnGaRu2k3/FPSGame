@@ -13,7 +13,4 @@ public class GlobalReferences : MonoBehaviour
             Destroy(gameObject);
         else Instance = this;
     }
-    
-
-
 }
