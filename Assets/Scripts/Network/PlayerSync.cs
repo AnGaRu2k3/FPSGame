@@ -24,6 +24,11 @@ public class PlayerSync : MonoBehaviourPun
     }
     public void ReloadComplete()
     {
+        Debug.Log("run reload function");
+        if (gameObject.GetComponentInChildren<Weapon>() == null)
+        {
+            Debug.Log("no weapon to reload complete");  
+        }
         gameObject.GetComponentInChildren<Weapon>().ReloadComplete();
     }
     [PunRPC]

@@ -8,7 +8,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Reload
-  m_Speed: 0.5
+  m_Speed: 0.3
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 3479870136735411502}
@@ -342,7 +342,7 @@ AnimatorController:
   - serializedVersion: 5
     m_Name: WeaponLayer
     m_StateMachine: {fileID: -4576065173632645739}
-    m_Mask: {fileID: 0}
+    m_Mask: {fileID: 31900000, guid: e9ff05345bb24440a96e1552821d7e83, type: 2}
     m_Motions: []
     m_Behaviours: []
     m_BlendingMode: 0
