@@ -86,6 +86,7 @@ public class CharacterMovement : MonoBehaviourPun
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
         UpdateAnimation();
+
     }
 
     private void SyncAnimationState()

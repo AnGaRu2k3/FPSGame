@@ -17,7 +17,21 @@ public class PlayerSync : MonoBehaviourPun
         photonView.RPC("ShootBullet", RpcTarget.All, direction, spawnPosition, velocity);
         photonView.RPC("CreateEnemyDotOnMap", RpcTarget.Others, photonView.ViewID);
     }
+    public void ApplyToReloadGun()
+    {
+        photonView.RPC("ReloadGun", RpcTarget.Others);
 
+    }
+    public void ReloadComplete()
+    {
+        gameObject.GetComponentInChildren<Weapon>().ReloadComplete();
+    }
+    [PunRPC]
+    public void ReloadGun()
+    {
+        gameObject.GetComponentInChildren<Weapon>().StartReloadAnimation();
+    }
+    
     [PunRPC]
     public void ShootBullet(Vector3 direction, Vector3 spawnPosition, float velocity)
     {
