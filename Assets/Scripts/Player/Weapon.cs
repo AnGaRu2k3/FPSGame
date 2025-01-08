@@ -10,6 +10,8 @@ public class Weapon : MonoBehaviour
     const float RECOILUP = 0.1f;
     const float AIMRECOILBACK = 0f;
     const float RECOILBACK = 0.2f;
+    [Header("Camera")]
+    [SerializeField] private CinemachineFreeLook freelookCamera;
     [Header("Network")]
     [SerializeField] private bool localPlayer = false;
     [SerializeField] private GameObject player;
@@ -18,13 +20,10 @@ public class Weapon : MonoBehaviour
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Transform aimSpot;
     [SerializeField] private bool isAiming = false;
-    [SerializeField] private float aimSpeed = 10f;
     [SerializeField] private float zoomOut = 60f; 
     [SerializeField] private float zoomIn = 40f;     
     [SerializeField] private float zoomSpeed = 10f; 
 
-    private Vector3 defaultCameraPosition;
-    private Vector3 currentCameraVelocity = Vector3.zero;
     [Header("Reload")]
     [SerializeField] private bool reloading = false;
     [Space]
@@ -70,7 +69,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private float recoverLength = 2f;
     [SerializeField] private float currentRecoilRigValue = 0f;
     [SerializeField] private Rig recoidRigLayer;
-    [SerializeField] private CinemachineFreeLook freelookCamera;
+    
     [SerializeField] private float cameraRecoilVertical;
     [SerializeField] private float cameraRecoilHorizontal;
     private float recoilVelocity = 0;
@@ -87,7 +86,6 @@ public class Weapon : MonoBehaviour
     private void Start()
     {
         playerSync = player.GetComponent<PlayerSync>();
-        defaultCameraPosition = playerCamera.transform.position;
         recoidRigLayer.weight = currentRecoilRigValue;
         animator = player.GetComponent<Animator>();
         //Debug.Log("defaultCamePos" + defaultCameraPosition);
@@ -97,6 +95,7 @@ public class Weapon : MonoBehaviour
     {
         // if not the owner player
         if (!localPlayer) return;
+        if (!player || player.GetComponent<PlayerStatus>().IsDeath()) return;
 
         if (currentShootingMode == Shootmode.Auto) 
         {
@@ -133,28 +132,24 @@ public class Weapon : MonoBehaviour
         //{
         //    if (isAiming == false)
         //    {
-        //        // Aim setting
-        //        playerCamera.nearClipPlane = 0.03f;
+        //        // aim setting
         //        spreadIntensity /= 10;
-        //        recoilUp = AIMRECOILUP;
-        //        recoilBack = AIMRECOILBACK;
+        //        // set to aim camera
+        //        aimFreeLookCamera.Priority = player.GetComponent<PlayerStatus>().MaxPriority();
         //    }
         //    isAiming = true;
-        //}   
+        //}
         //if (Input.GetKeyUp(KeyCode.Mouse1) || reloading) // release right mouse
         //{
         //    if (isAiming == true)
         //    {
         //        // no Aim setting
-        //        playerCamera.nearClipPlane = 0.3f;
         //        spreadIntensity *= 10;
-        //        recoilUp = RECOILUP;
-        //        recoilBack = RECOILBACK;
+        //        // set to tps camera
+        //        freelookCamera.Priority = player.GetComponent<PlayerStatus>().MaxPriority();
         //    }
         //    isAiming = false;
         //}
-
-        //HandleAiming();
 
     }
     private void FireWeapon()
@@ -222,45 +217,6 @@ public class Weapon : MonoBehaviour
         }
 
     }
-    void HandleAiming()
-    {
-        if (isAiming)
-        {
-            
-            // move camera to aim spot
-            playerCamera.transform.position = Vector3.SmoothDamp(
-                playerCamera.transform.position,
-                aimSpot.position,
-                ref currentCameraVelocity,
-                1f / aimSpeed
-            );
-
-            // zoom in
-            playerCamera.fieldOfView = Mathf.Lerp(
-                playerCamera.fieldOfView,
-                zoomIn,
-                Time.deltaTime * zoomSpeed
-            );
-        }
-        else
-        {
-            
-            // Move camera to the local position
-            playerCamera.transform.position = Vector3.SmoothDamp(
-                playerCamera.transform.position,
-                defaultCameraPosition,
-                ref currentCameraVelocity,
-                1f / aimSpeed
-            );
-
-            // zoom out
-            playerCamera.fieldOfView = Mathf.Lerp(
-                playerCamera.fieldOfView,
-                zoomOut,
-                Time.deltaTime * zoomSpeed
-            ) ;
-        }
-    }
     public int GetAmmo()
     {
         return ammo;
@@ -308,7 +264,6 @@ public class Weapon : MonoBehaviour
     {
         localPlayer = true;
         freelookCamera = GameObject.Find("FreeLookCamera").GetComponent<CinemachineFreeLook>();
-
     }
     public void StartReloadAnimation()
     {

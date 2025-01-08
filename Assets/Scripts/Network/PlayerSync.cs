@@ -46,9 +46,10 @@ public class PlayerSync : MonoBehaviourPun
 
         // Create bullet and add force
         GameObject bullet = Instantiate(bulletPrefab, spawnPosition, Quaternion.identity);
+        
         bullet.transform.forward = direction;
         bullet.GetComponent<Rigidbody>().AddForce(direction * velocity, ForceMode.Impulse);
-
+        bullet.GetComponent<Bullet>().SetShootingPlayer(gameObject);
         StartCoroutine(DestroyBulletAfter(bullet, 3f));
         Debug.Log($"The client receive this RPC have ID {GetComponent<PhotonView>().ViewID}");
     }

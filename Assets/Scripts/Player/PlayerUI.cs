@@ -4,7 +4,8 @@ using UnityEngine;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine.UI;
-using TMPro;
+using System;
+
 public class PlayerUI : MonoBehaviour
 {
     [SerializeField] private GameObject player;
@@ -15,12 +16,25 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private Slider healthBar;
     [SerializeField] private TMP_Text ammoStatus;
     [SerializeField] private TMP_Text healthStatus;
+    [SerializeField] private TMP_Text timeRemainingStatus;
 
+    [SerializeField] private GameObject deathScreen;
+    [SerializeField] private Button respawn;
+
+    public static PlayerUI Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(this);
+            return;
+        }
+        Instance = this;
+    }
     void Start()
     {
-            
+        GameManager.Instance.OnTimeStatusUpdated += UpdateTimeRemainingStatus;
     }
-
     // Update is called once per frame
     void Update()
     {
@@ -34,29 +48,34 @@ public class PlayerUI : MonoBehaviour
         // y + 45 because the image sprite is 45' degreed
         playerOnMap.transform.rotation = Quaternion.Euler(90, player.transform.rotation.eulerAngles.y + 45, player.transform.rotation.eulerAngles.z);
         // Update health status
-        healthStatus.text = playerStatus.GetHealth().ToString();
-        healthBar.value = playerStatus.GetHealth();
-
         
+        healthBar.value = playerStatus.GetHealth();
     }
-    //public void SetHealthBar(GameObject _healthBar)
-    //{
-    //    healthBar = _healthBar;
-    //}
-    //public void TakeDamage(int damage)
-    //{
-    //    healthBar.GetComponent<Slider>().value -= damage;
-    //}
-    private void SetWeapon(Weapon _weapon)
+
+    private void UpdateTimeRemainingStatus(string status)
     {
-        weapon = _weapon;
+        timeRemainingStatus.text = status;
     }
-    
+
     public void SetPlayer(GameObject _player)
     {
         player = _player;
-        SetWeapon(player.GetComponentInChildren<Weapon>());
+        weapon = player.GetComponentInChildren<Weapon>();
     }
-        
+
+    public void UpdateHealth(int health)
+    {
+        healthStatus.text = health.ToString();
+    }
+    public void ToggleDeathScreen(GameObject player, bool status)
+    {
+        deathScreen.SetActive(status);
+
+    }
+    void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnTimeStatusUpdated -= UpdateTimeRemainingStatus;
+    }
 
 }

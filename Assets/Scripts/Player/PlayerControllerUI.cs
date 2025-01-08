@@ -7,13 +7,13 @@ using Cinemachine;
 public class PlayerControllerUI : MonoBehaviourPunCallbacks
 {
     [SerializeField] private List<MonoBehaviour> playerScripts = new List<MonoBehaviour>();
-    [SerializeField] private GameObject freelookCamera;
+    [SerializeField] private CinemachineFreeLook freeLook;
+    
     void Start()
     {
-        freelookCamera = GameObject.Find("FreeLookCamera");
         playerScripts.Add(gameObject.GetComponentInChildren<CharacterAiming>());
-        playerScripts.Add(gameObject.GetComponentInChildren<CharacterMovement>());
-        playerScripts.Add(gameObject.GetComponentInChildren<Weapon>());
+        
+        freeLook = GameObject.Find("FreeLookCamera").GetComponent<CinemachineFreeLook>();
 
         if (photonView.IsMine)
         {
@@ -34,22 +34,18 @@ public class PlayerControllerUI : MonoBehaviourPunCallbacks
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 EnableControls(false);
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
             }
         }
-        else
+        else if (Cursor.lockState == CursorLockMode.None)
         {
             if (Input.GetKeyDown(KeyCode.Mouse0) && !IsPointerOverUI())
             {
                 EnableControls(true);
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
             }
         }
     }
 
-    void EnableControls(bool status)
+    public void EnableControls(bool status)
     {
         foreach (var script in playerScripts)
         {
@@ -58,7 +54,20 @@ public class PlayerControllerUI : MonoBehaviourPunCallbacks
                 script.enabled = status;
             }
         }
-        freelookCamera.SetActive(status);
+        Cursor.lockState = (status) ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !status;
+        gameObject.GetComponentInChildren<CharacterMovement>().CanMove(status);
+        // set camera 
+        if (status)
+        {
+            freeLook.m_XAxis.m_MaxSpeed = 300f;
+            freeLook.m_YAxis.m_MaxSpeed = 2f;
+        }
+        else
+        {
+            freeLook.m_XAxis.m_MaxSpeed = 0f;
+            freeLook.m_YAxis.m_MaxSpeed = 0f;
+        }
     }
 
     bool IsPointerOverUI()

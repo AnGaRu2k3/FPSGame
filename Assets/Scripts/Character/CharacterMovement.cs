@@ -9,6 +9,7 @@ public class CharacterMovement : MonoBehaviourPun
     [SerializeField] private CharacterController controller;
     [SerializeField] private Animator animator;
     [SerializeField] private Camera mainCamera;
+    [SerializeField] private bool canMove = true;
 
     private Vector3 velocity;
     private bool isGrounded;
@@ -45,12 +46,18 @@ public class CharacterMovement : MonoBehaviourPun
 
     private void HandleMovement()
     {
+
+        // apply gravity
+        velocity.y += gravity * Time.deltaTime;
+
         isGrounded = controller.isGrounded;
 
         if (isGrounded && velocity.y < 0)
         {
             velocity.y = -2f; // keep character on ground
         }
+        controller.Move(velocity * Time.deltaTime);
+        if (!canMove) return; // if player cant move like death or something
 
         // get input
         float horizontal = Input.GetAxis("Horizontal");
@@ -82,17 +89,18 @@ public class CharacterMovement : MonoBehaviourPun
             isJumping = true;
         }
 
-        // gravity
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+
         UpdateAnimation();
 
     }
-
+    public void CanMove(bool status)
+    {
+        canMove = status;
+    }
     private void SyncAnimationState()
     {
         photonView.RPC("UpdateAnimationState", RpcTarget.Others, movementX, movementZ, isJumping);
-        isJumping = false; 
+        isJumping = false;
     }
 
     [PunRPC]

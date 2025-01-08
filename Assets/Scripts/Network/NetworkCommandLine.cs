@@ -117,7 +117,46 @@ public class NetWorkCommandLine : MonoBehaviourPunCallbacks
             Debug.Log("room name is: " + room.Name);
         }
     }
-
+    [ConsoleMethod("set-player-name", "Set the player's name")]
+    public static void SetPlayerName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            Debug.Log("Player name cannot be empty.");
+            return;
+        }
+         
+        PhotonNetwork.NickName = name; 
+        Debug.Log($"Player name set to: {name}");
+    }
+    [ConsoleMethod("test-player-death", "Test the death view by character name")]
+    public static void TestPlayerDeath(string gameObjectName)
+    {
+        GameObject player = GameObject.Find(gameObjectName);
+        if (player != null && player.TryGetComponent<PlayerStatus>(out var playerStatus))
+        {
+            playerStatus.HandlePlayerViewDeath();
+            Debug.Log($"Player {gameObjectName} death view triggered.");
+        }
+        else
+        {
+            Debug.Log($"GameObject {gameObjectName} not found or does not have a PlayerStatus component.");
+        }
+    }
+    [ConsoleMethod("test-player-respawn", "Test the respawn view by character name")]
+    public static void HandleRespawnPlayer(string gameObjectName)
+    {
+        GameObject player = GameObject.Find(gameObjectName);
+        if (player != null && player.TryGetComponent<PlayerStatus>(out var playerStatus))
+        {
+            playerStatus.HandleRespawnPlayer();
+            Debug.Log($"Player {gameObjectName} death view triggered.");
+        }
+        else
+        {
+            Debug.Log($"GameObject {gameObjectName} not found or does not have a PlayerStatus component.");
+        }
+    }
 
 
 
