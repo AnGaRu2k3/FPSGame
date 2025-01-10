@@ -19,7 +19,7 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
     [SerializeField] private Weapon weapon;
     [SerializeField] private bool isDeath = false;
     [SerializeField] private int maxPriorityCinemachine = 10;
-    
+
     public void SetUpWeapon(Weapon _weapon)
     {
         weapon = _weapon;
@@ -35,7 +35,7 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
     }
     public void Update()
     {
-        
+
     }
     public KDA GetKDA()
     {
@@ -46,14 +46,16 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
         if (!photonView.IsMine) return; // only the player local run this kills
         if (health <= 0) return; // do nothing  if get shoot after death
         health -= damage;
-        
-        if (health <= 0) 
+
+        if (health <= 0)
         {
             health = 0;
             deaths++;
             isDeath = true;
             shootingPlayer.GetComponent<PlayerStatus>().kills++;
+            string killerName = shootingPlayer.GetComponent<PlayerStatus>().playerName;
             shootingPlayer.GetComponent<PlayerStatus>().ApplyToSyncStatus();
+            ApplyToSyncKillFeed(killerName, playerName);
             HandlePlayerDeath();
 
         }
@@ -61,12 +63,12 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
 
         PlayerUI.Instance.UpdateHealth(health);
     }
-    
+
     public bool IsDeath()
     {
         return isDeath;
     }
-    
+
     public int MaxPriority()
     {
         return ++maxPriorityCinemachine;
@@ -100,7 +102,7 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
         gameObject.GetComponent<RigBuilder>().enabled = false;
         animator.SetTrigger("Death");
         // set weapon out of player
-        
+
         if (gameObject.GetComponentInChildren<Weapon>())
         {
             GameObject weapon = gameObject.GetComponentInChildren<Weapon>().gameObject;
@@ -148,7 +150,7 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        if (stream.IsWriting) 
+        if (stream.IsWriting)
         {
             stream.SendNext(health);
             stream.SendNext(kills);
@@ -156,7 +158,7 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
             stream.SendNext(playerName);
             stream.SendNext(isDeath);
         }
-        else if (stream.IsReading) 
+        else if (stream.IsReading)
         {
             health = (int)stream.ReceiveNext();
             kills = (int)stream.ReceiveNext();
@@ -164,8 +166,17 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
             playerName = (string)stream.ReceiveNext();
             isDeath = (bool)stream.ReceiveNext();
 
-            PlayerStatusTableTab.Instance.DisplayTable(); 
+            PlayerStatusTableTab.Instance.DisplayTable();
         }
+    }
+    public void ApplyToSyncKillFeed(string killerName, string playerDeathName)
+    {
+        photonView.RPC("SyncKillFeed", RpcTarget.All, killerName, playerDeathName);
+    }
+    [PunRPC]
+    public void SyncKillFeed(string killerName, string playerDeathName)
+    {
+        KillFeedTable.Instance.createKillFeed(killerName, playerDeathName);
     }
     public void ApplyToSyncStatus()
     {
