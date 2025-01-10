@@ -10,7 +10,7 @@ using Unity.VisualScripting;
 public class PlayerSetUp : MonoBehaviourPunCallbacks
 {
     [SerializeField] private GameObject playerPrefab;
-    [SerializeField] Transform spawnPoint;
+    
     [SerializeField] GameObject playerUI;
     [SerializeField] CinemachineFreeLook freelookCamera;
     [SerializeField] CinemachineFreeLook aimFreeLookCamera;
@@ -20,6 +20,8 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
         base.OnJoinedRoom();
         Debug.Log("A player has join room");
         // init player
+        Transform[] spawnPoints = GlobalReferences.Instance.spawnPoints;
+        Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
         GameObject player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
         // set up weapon
         Weapon weapon = player.GetComponentInChildren<Weapon>();

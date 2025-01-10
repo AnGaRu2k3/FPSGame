@@ -135,7 +135,7 @@ public class NetWorkCommandLine : MonoBehaviourPunCallbacks
         GameObject player = GameObject.Find(gameObjectName);
         if (player != null && player.TryGetComponent<PlayerStatus>(out var playerStatus))
         {
-            playerStatus.HandlePlayerViewDeath();
+            playerStatus.HandlePlayerDeath();
             Debug.Log($"Player {gameObjectName} death view triggered.");
         }
         else
@@ -149,7 +149,7 @@ public class NetWorkCommandLine : MonoBehaviourPunCallbacks
         GameObject player = GameObject.Find(gameObjectName);
         if (player != null && player.TryGetComponent<PlayerStatus>(out var playerStatus))
         {
-            playerStatus.HandleRespawnPlayer();
+            playerStatus.HandlePlayerRespawn();
             Debug.Log($"Player {gameObjectName} death view triggered.");
         }
         else

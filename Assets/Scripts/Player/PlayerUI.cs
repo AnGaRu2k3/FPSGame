@@ -19,8 +19,12 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private TMP_Text healthStatus;
     [SerializeField] private TMP_Text timeRemainingStatus;
 
+
     [SerializeField] private GameObject deathScreen;
-    [SerializeField] private Button respawn;
+    [SerializeField] private Button respawnBtn;
+    [SerializeField] private GameObject tabKDA;
+    [SerializeField] private GameObject pauseFrame;
+
 
     public static PlayerUI Instance { get; private set; }
     private void Awake()
@@ -36,6 +40,7 @@ public class PlayerUI : MonoBehaviour
     {
         GameManager.Instance.OnTimeStatusUpdated += UpdateTimeRemainingStatus;
     }
+
     // Update is called once per frame
     void Update()
     {
@@ -51,8 +56,30 @@ public class PlayerUI : MonoBehaviour
         // Update health status
         
         healthBar.value = playerStatus.GetHealth();
-    }
+        if (Input.GetKey(KeyCode.Tab)) // hold tab button
+        {
+            tabKDA.GetComponent<CanvasGroup>().alpha = 1f;
+        }
+        if (Input.GetKeyUp(KeyCode.Tab))
+        {
+            tabKDA.GetComponent<CanvasGroup>().alpha = 0;
+        }
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                TogglePauseFrame(true);
+ 
+            }
+        }
 
+    }
+    public void TogglePauseFrame(bool status)
+    {
+        bool controllStatus = (!status & !player.GetComponent<PlayerStatus>().IsDeath()); // if pause frame not open and player not death
+        player.GetComponent<PlayerControllerUI>().EnableControls(controllStatus); 
+        pauseFrame.SetActive(status);
+    }
     private void UpdateTimeRemainingStatus(string status)
     {
         timeRemainingStatus.text = status;
@@ -63,13 +90,14 @@ public class PlayerUI : MonoBehaviour
         if (!_player.GetPhotonView().IsMine) return; // if not the local player;
         player = _player;
         weapon = player.GetComponentInChildren<Weapon>();
+        respawnBtn.onClick.AddListener(() => player.GetComponent<PlayerStatus>().HandlePlayerRespawn());
     }
 
     public void UpdateHealth(int health)
     {
         healthStatus.text = health.ToString();
     }
-    public void ToggleDeathScreen(GameObject player, bool status)
+    public void ToggleDeathScreen(bool status)
     {
         deathScreen.SetActive(status);
 

@@ -385,6 +385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerScripts: []
   freeLook: {fileID: 0}
+  menuFrame: {fileID: 0}
 --- !u!136 &2908382671649803382
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1141,7 +1142,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8103101596168103267
 RectTransform:
   m_ObjectHideFlags: 0

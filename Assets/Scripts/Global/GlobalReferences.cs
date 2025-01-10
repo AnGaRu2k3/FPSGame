@@ -6,6 +6,7 @@ using UnityEngine;
 public class GlobalReferences : MonoBehaviour
 {
     public static GlobalReferences Instance{get; set;}
+    public Transform[] spawnPoints;
     public GameObject bulletImpactPrefab;
     private void Awake()
     {

@@ -8,41 +8,28 @@ public class PlayerControllerUI : MonoBehaviourPunCallbacks
 {
     [SerializeField] private List<MonoBehaviour> playerScripts = new List<MonoBehaviour>();
     [SerializeField] private CinemachineFreeLook freeLook;
+    [SerializeField] private GameObject menuFrame;
     
     void Start()
     {
-        playerScripts.Add(gameObject.GetComponentInChildren<CharacterAiming>());
         
-        freeLook = GameObject.Find("FreeLookCamera").GetComponent<CinemachineFreeLook>();
-
         if (photonView.IsMine)
         {
+            playerScripts.Add(gameObject.GetComponentInChildren<CharacterAiming>());
+
+            freeLook = GameObject.Find("FreeLookCamera").GetComponent<CinemachineFreeLook>();
             EnableControls(true);
         }
         else
         {
-            EnableControls(false);
+            this.enabled = false;
         }
     }
 
     void Update()
     {
-        if (!photonView.IsMine) return;
 
-        if (Cursor.lockState == CursorLockMode.Locked)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                EnableControls(false);
-            }
-        }
-        else if (Cursor.lockState == CursorLockMode.None)
-        {
-            if (Input.GetKeyDown(KeyCode.Mouse0) && !IsPointerOverUI())
-            {
-                EnableControls(true);
-            }
-        }
+        
     }
 
     public void EnableControls(bool status)

@@ -54,39 +54,27 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
             isDeath = true;
             shootingPlayer.GetComponent<PlayerStatus>().kills++;
             shootingPlayer.GetComponent<PlayerStatus>().ApplyToSyncStatus();
-            photonView.RPC("UpdateDeathAnimation", RpcTarget.All);
-           
-            HandlePlayerViewDeath();
+            HandlePlayerDeath();
 
         }
         ApplyToSyncStatus();
 
         PlayerUI.Instance.UpdateHealth(health);
     }
-    public void ApplyToSyncStatus()
-    {
-        photonView.RPC("SyncPlayerStatus", RpcTarget.All, health, kills, deaths, playerName);
-    }
+    
     public bool IsDeath()
     {
         return isDeath;
     }
-    public void HandlePlayerViewDeath()
+    
+    public int MaxPriority()
     {
-
-        // player death view
-        PlayerUI.Instance.ToggleDeathScreen(gameObject, true);
-        // player controller
-        gameObject.GetComponent<PlayerControllerUI>().EnableControls(false);
-
+        return ++maxPriorityCinemachine;
     }
-    public void HandleRespawnPlayer()
+    [PunRPC]
+    public void UpdateRespawnAnimation()
     {
-        // player controller
-        gameObject.GetComponent<PlayerControllerUI>().EnableControls(true);
         // restore
-        GameObject.Find("FreeLookCamera").GetComponent<CinemachineFreeLook>().Priority = MaxPriority();
-        PlayerUI.Instance.ToggleDeathScreen(gameObject, false);
         Animator animator = gameObject.GetComponent<Animator>();
         gameObject.GetComponent<RigBuilder>().enabled = true;
         animator.SetTrigger("Respawn");
@@ -104,11 +92,6 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
         gameObject.GetComponent<CharacterController>().center = new Vector3(0, -0.2f, 0);
         gameObject.GetComponent<CapsuleCollider>().center = new Vector3(0, -0.2f, 0);
     }
-    public int MaxPriority()
-    {
-        return ++maxPriorityCinemachine;
-    }
-
     [PunRPC]
     public void UpdateDeathAnimation()
     {
@@ -128,13 +111,39 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
             collider.convex = true;
         }
-        
-
         // set height of character when death
         gameObject.GetComponent<CharacterController>().height = 0.3f;
         gameObject.GetComponent<CharacterController>().center = Vector3.zero;
         gameObject.GetComponent<CapsuleCollider>().height = 0.3f;
         gameObject.GetComponent<CapsuleCollider>().center = Vector3.zero;
+    }
+
+    public void HandlePlayerRespawn()
+    {
+        // player death view
+        PlayerUI.Instance.ToggleDeathScreen(false);
+        // player controller
+        gameObject.GetComponent<PlayerControllerUI>().EnableControls(true);
+        photonView.RPC("UpdateRespawnAnimation", RpcTarget.All);
+        // move Character to new spawnPoint
+        Transform[] spawnPoints = GlobalReferences.Instance.spawnPoints;
+        Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        Debug.Log($"spawn point is {spawnPoint.position}");
+        CharacterController controller = gameObject.GetComponent<CharacterController>();
+        if (controller != null) controller.enabled = false;
+        gameObject.transform.position = spawnPoint.position;
+        if (controller != null) controller.enabled = true;
+
+        gameObject.transform.position = spawnPoint.position;
+    }
+
+    public void HandlePlayerDeath()
+    {
+        photonView.RPC("UpdateDeathAnimation", RpcTarget.All);
+        // player death view
+        PlayerUI.Instance.ToggleDeathScreen(true);
+        // player controller
+        gameObject.GetComponent<PlayerControllerUI>().EnableControls(false);
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -145,6 +154,7 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
             stream.SendNext(kills);
             stream.SendNext(deaths);
             stream.SendNext(playerName);
+            stream.SendNext(isDeath);
         }
         else if (stream.IsReading) 
         {
@@ -152,18 +162,24 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
             kills = (int)stream.ReceiveNext();
             deaths = (int)stream.ReceiveNext();
             playerName = (string)stream.ReceiveNext();
+            isDeath = (bool)stream.ReceiveNext();
 
             PlayerStatusTableTab.Instance.DisplayTable(); 
         }
     }
+    public void ApplyToSyncStatus()
+    {
+        photonView.RPC("SyncPlayerStatus", RpcTarget.All, health, kills, deaths, playerName, isDeath);
+    }
     [PunRPC]
-    public void SyncPlayerStatus(int newHealth, int newKills, int newDeaths, string newPlayerName)
+    public void SyncPlayerStatus(int newHealth, int newKills, int newDeaths, string newPlayerName, bool newIsDeath)
     {
 
         health = newHealth;
         kills = newKills;
         deaths = newDeaths;
         playerName = newPlayerName;
+        isDeath = newIsDeath;
 
         // updateUITableTab
         PlayerStatusTableTab.Instance.DisplayTable();
