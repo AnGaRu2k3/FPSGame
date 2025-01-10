@@ -5,6 +5,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine.UI;
 using System;
+using Photon.Pun;
 
 public class PlayerUI : MonoBehaviour
 {
@@ -59,6 +60,7 @@ public class PlayerUI : MonoBehaviour
 
     public void SetPlayer(GameObject _player)
     {
+        if (!_player.GetPhotonView().IsMine) return; // if not the local player;
         player = _player;
         weapon = player.GetComponentInChildren<Weapon>();
     }

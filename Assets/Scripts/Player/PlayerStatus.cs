@@ -12,7 +12,7 @@ using Cinemachine;
 public class PlayerStatus : MonoBehaviourPun, IPunObservable
 {
     [SerializeField] private int id;
-    [SerializeField] private int health;
+    [SerializeField] private int health = 100;
     [SerializeField] private int kills = 0;
     [SerializeField] private int deaths = 0;
     [SerializeField] private string playerName;
@@ -56,12 +56,12 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
             shootingPlayer.GetComponent<PlayerStatus>().ApplyToSyncStatus();
             photonView.RPC("UpdateDeathAnimation", RpcTarget.All);
            
-            if (photonView.IsMine) HandlePlayerViewDeath();
+            HandlePlayerViewDeath();
 
         }
         ApplyToSyncStatus();
 
-        if (photonView.IsMine) PlayerUI.Instance.UpdateHealth(health);
+        PlayerUI.Instance.UpdateHealth(health);
     }
     public void ApplyToSyncStatus()
     {
@@ -150,10 +150,10 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
         {
             health = (int)stream.ReceiveNext();
             kills = (int)stream.ReceiveNext();
-            health = (int)stream.ReceiveNext();
+            deaths = (int)stream.ReceiveNext();
             playerName = (string)stream.ReceiveNext();
 
-            PlayerStatusTableTab.Instance.DisplayTable(); // change table status if KDA change
+            PlayerStatusTableTab.Instance.DisplayTable(); 
         }
     }
     [PunRPC]
