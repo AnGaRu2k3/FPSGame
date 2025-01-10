@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class bullet : MonoBehaviour
+public class Bullet : MonoBehaviour
 {
+    private GameObject shootingPlayer;
     public void OnCollisionEnter(Collision objectHit)
     {
         if (objectHit.gameObject.CompareTag("Target"))
@@ -21,8 +22,12 @@ public class bullet : MonoBehaviour
         {
             Debug.Log("bullet hit to other player");
             GameObject player = objectHit.gameObject;
-            player.GetComponent<PlayerStatus>().DealDamage(30);
+            player.GetComponent<PlayerStatus>().TakeDamage(30, shootingPlayer);
         }
+    }
+    public void SetShootingPlayer(GameObject _player)
+    {
+        shootingPlayer = _player;
     }
     void CreateBulletImpact(Collision objectHit)
     {

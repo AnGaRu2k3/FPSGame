@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7226494301562739391}
   - component: {fileID: 4809985168645609193}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: EnemeyOnMapPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -7,49 +7,32 @@ using Cinemachine;
 public class PlayerControllerUI : MonoBehaviourPunCallbacks
 {
     [SerializeField] private List<MonoBehaviour> playerScripts = new List<MonoBehaviour>();
-    [SerializeField] private GameObject freelookCamera;
+    [SerializeField] private CinemachineFreeLook freeLook;
+    [SerializeField] private GameObject menuFrame;
+    
     void Start()
     {
-        freelookCamera = GameObject.Find("FreeLookCamera");
-        playerScripts.Add(gameObject.GetComponentInChildren<CharacterAiming>());
-        playerScripts.Add(gameObject.GetComponentInChildren<CharacterMovement>());
-        playerScripts.Add(gameObject.GetComponentInChildren<Weapon>());
-
+        
         if (photonView.IsMine)
         {
+            playerScripts.Add(gameObject.GetComponentInChildren<CharacterAiming>());
+
+            freeLook = GameObject.Find("FreeLookCamera").GetComponent<CinemachineFreeLook>();
             EnableControls(true);
         }
         else
         {
-            EnableControls(false);
+            this.enabled = false;
         }
     }
 
     void Update()
     {
-        if (!photonView.IsMine) return;
 
-        if (Cursor.lockState == CursorLockMode.Locked)
-        {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                EnableControls(false);
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-        }
-        else
-        {
-            if (Input.GetKeyDown(KeyCode.Mouse0) && !IsPointerOverUI())
-            {
-                EnableControls(true);
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-        }
+        
     }
 
-    void EnableControls(bool status)
+    public void EnableControls(bool status)
     {
         foreach (var script in playerScripts)
         {
@@ -58,7 +41,20 @@ public class PlayerControllerUI : MonoBehaviourPunCallbacks
                 script.enabled = status;
             }
         }
-        freelookCamera.SetActive(status);
+        Cursor.lockState = (status) ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !status;
+        gameObject.GetComponentInChildren<CharacterMovement>().CanMove(status);
+        // set camera 
+        if (status)
+        {
+            freeLook.m_XAxis.m_MaxSpeed = 300f;
+            freeLook.m_YAxis.m_MaxSpeed = 2f;
+        }
+        else
+        {
+            freeLook.m_XAxis.m_MaxSpeed = 0f;
+            freeLook.m_YAxis.m_MaxSpeed = 0f;
+        }
     }
 
     bool IsPointerOverUI()
