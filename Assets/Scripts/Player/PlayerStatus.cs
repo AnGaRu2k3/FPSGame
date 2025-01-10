@@ -9,7 +9,7 @@ using IngameDebugConsole;
 using UnityEngine.Analytics;
 using Cinemachine;
 
-public class PlayerStatus : MonoBehaviourPun
+public class PlayerStatus : MonoBehaviourPun, IPunObservable
 {
     [SerializeField] private int id;
     [SerializeField] private int health;
@@ -43,6 +43,7 @@ public class PlayerStatus : MonoBehaviourPun
     }
     public void TakeDamage(int damage, GameObject shootingPlayer)
     {
+        if (!photonView.IsMine) return; // only the player local run this kills
         if (health <= 0) return; // do nothing  if get shoot after death
         health -= damage;
         
@@ -52,12 +53,19 @@ public class PlayerStatus : MonoBehaviourPun
             deaths++;
             isDeath = true;
             shootingPlayer.GetComponent<PlayerStatus>().kills++;
-            PlayerStatusTableTab.Instance.DisplayTable();
+            shootingPlayer.GetComponent<PlayerStatus>().ApplyToSyncStatus();
             photonView.RPC("UpdateDeathAnimation", RpcTarget.All);
+           
             if (photonView.IsMine) HandlePlayerViewDeath();
 
         }
+        ApplyToSyncStatus();
+
         if (photonView.IsMine) PlayerUI.Instance.UpdateHealth(health);
+    }
+    public void ApplyToSyncStatus()
+    {
+        photonView.RPC("SyncPlayerStatus", RpcTarget.All, health, kills, deaths, playerName);
     }
     public bool IsDeath()
     {
@@ -129,5 +137,36 @@ public class PlayerStatus : MonoBehaviourPun
         gameObject.GetComponent<CapsuleCollider>().center = Vector3.zero;
     }
 
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting) 
+        {
+            stream.SendNext(health);
+            stream.SendNext(kills);
+            stream.SendNext(deaths);
+            stream.SendNext(playerName);
+        }
+        else if (stream.IsReading) 
+        {
+            health = (int)stream.ReceiveNext();
+            kills = (int)stream.ReceiveNext();
+            health = (int)stream.ReceiveNext();
+            playerName = (string)stream.ReceiveNext();
+
+            PlayerStatusTableTab.Instance.DisplayTable(); // change table status if KDA change
+        }
+    }
+    [PunRPC]
+    public void SyncPlayerStatus(int newHealth, int newKills, int newDeaths, string newPlayerName)
+    {
+
+        health = newHealth;
+        kills = newKills;
+        deaths = newDeaths;
+        playerName = newPlayerName;
+
+        // updateUITableTab
+        PlayerStatusTableTab.Instance.DisplayTable();
+    }
 }
 

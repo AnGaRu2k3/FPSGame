@@ -96,4 +96,5 @@ public class PlayerSync : MonoBehaviourPun
         yield return new WaitForSeconds(delay);
         Destroy(bullet);
     }
-}
+
+ }

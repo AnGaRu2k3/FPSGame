@@ -21,7 +21,6 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
         Debug.Log("A player has join room");
         // init player
         GameObject player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
-        player.name = PhotonNetwork.NickName;
         // set up weapon
         Weapon weapon = player.GetComponentInChildren<Weapon>();
         if (weapon)
@@ -58,7 +57,7 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
         player.GetComponent<RigBuilder>().Build();
         player.GetComponent<Animator>().enabled = true;
 
-        // update kda table
+        // update player in orthers client
         PlayerStatusTableTab.Instance.DisplayTable();
         playerUI.GetComponent<PlayerUI>().SetPlayer(player);
     }
