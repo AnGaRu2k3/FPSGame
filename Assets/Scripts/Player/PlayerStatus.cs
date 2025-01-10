@@ -122,11 +122,12 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
 
     public void HandlePlayerRespawn()
     {
+        // update status
+        health = 100;
+        isDeath = false;
+        ApplyToSyncStatus();
         // player death view
         PlayerUI.Instance.ToggleDeathScreen(false);
-        // player controller
-        gameObject.GetComponent<PlayerControllerUI>().EnableControls(true);
-        photonView.RPC("UpdateRespawnAnimation", RpcTarget.All);
         // move Character to new spawnPoint
         Transform[] spawnPoints = GlobalReferences.Instance.spawnPoints;
         Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
@@ -135,6 +136,10 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
         if (controller != null) controller.enabled = false;
         gameObject.transform.position = spawnPoint.position;
         if (controller != null) controller.enabled = true;
+        // player controller
+        gameObject.GetComponent<PlayerControllerUI>().EnableControls(true);
+        photonView.RPC("UpdateRespawnAnimation", RpcTarget.All);
+        
 
         gameObject.transform.position = spawnPoint.position;
     }
