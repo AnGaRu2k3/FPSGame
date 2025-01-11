@@ -125,6 +125,7 @@ public class GameManager : MonoBehaviour
         gameStarted = false;
         countdownStarted = false;
         timeRemaining = gameDuration;
+        PlayerUI.Instance.ToggleDeathScreen(false);
     }
 
 
