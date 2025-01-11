@@ -3766,6 +3766,11 @@ PrefabInstance:
       objectReference: {fileID: 168653870856652328}
     - target: {fileID: 3126846287482800663, guid: 04613f424c7e6448d810988d87f13f7c,
         type: 3}
+      propertyPath: allowReset
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3126846287482800663, guid: 04613f424c7e6448d810988d87f13f7c,
+        type: 3}
       propertyPath: recoidRigLayer
       value: 
       objectReference: {fileID: 7482328313632890282}

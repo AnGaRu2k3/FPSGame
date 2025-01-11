@@ -462,16 +462,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   freelookCamera: {fileID: 0}
-  aimFreeLookCamera: {fileID: 8833001539901414390}
   localPlayer: 0
   player: {fileID: 0}
   playerSync: {fileID: 0}
   playerCamera: {fileID: 0}
-  aimSpot: {fileID: 5239905184090025954}
-  isAiming: 0
-  zoomOut: 60
-  zoomIn: 40
-  zoomSpeed: 10
   reloading: 0
   ammo: 60
   magAmmo: 60
@@ -484,7 +478,7 @@ MonoBehaviour:
   shootingDelay: 0.1
   isShooting: 0
   ready2Shoot: 1
-  allowReset: 1
+  allowReset: 0
   bulletPerBurst: 1
   currentBulletInBurst: 0
   burstDelay: 0.2

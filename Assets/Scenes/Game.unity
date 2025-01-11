@@ -2384,7 +2384,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e28ed2b9d8ccf433abb22bd27f6c7b14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameDuration: 10
+  gameDuration: 90
   ResultGameUI: {fileID: 348264234}
 --- !u!4 &803875524
 Transform:
@@ -3549,7 +3549,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 63
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -6130,7 +6130,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -112}
+  m_AnchoredPosition: {x: 0, y: 70}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1678197073
@@ -7289,7 +7289,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 182}
   m_SizeDelta: {x: 1000, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1839186400
@@ -7787,7 +7787,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1888512207}
   - component: {fileID: 1888512206}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: PlayerOnMap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
