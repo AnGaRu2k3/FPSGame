@@ -22,6 +22,7 @@ public class Bullet : MonoBehaviour
         {
             Debug.Log("bullet hit to other player");
             GameObject player = objectHit.gameObject;
+            CreateBloodSpray(objectHit);
             player.GetComponent<PlayerStatus>().TakeDamage(30, shootingPlayer);
         }
     }
@@ -37,7 +38,21 @@ public class Bullet : MonoBehaviour
             contact.point,
             Quaternion.LookRotation(contact.normal)
         );
+
         hole.transform.SetParent(objectHit.transform);
+        Destroy(hole, 2.0f);
+
+    }
+    void CreateBloodSpray(Collision objectHit)
+    {
+        ContactPoint contact = objectHit.contacts[0];
+        GameObject bloodSpray = Instantiate(
+            GlobalReferences.Instance.bloodSprayPrefab,
+            contact.point,
+            Quaternion.LookRotation(contact.normal)
+        );
+        bloodSpray.transform.SetParent(objectHit.transform);
+        Destroy(bloodSpray, 2.0f);
 
     }
 

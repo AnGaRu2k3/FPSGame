@@ -334,7 +334,7 @@ MonoBehaviour:
   kills: 0
   deaths: 0
   playerName: 
-  weapon: {fileID: 0}
+  weapon: {fileID: 3389686382085573125}
   isDeath: 0
   maxPriorityCinemachine: 10
 --- !u!114 &4464206730803194290
@@ -3898,6 +3898,18 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 319298106251919378}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3389686382085573125 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3126846287482800663, guid: 04613f424c7e6448d810988d87f13f7c,
+    type: 3}
+  m_PrefabInstance: {fileID: 319298106251919378}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b56c949eec6b425ba22c7a727d0d503, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &5782940054856193379 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6066206554909906289, guid: 04613f424c7e6448d810988d87f13f7c,

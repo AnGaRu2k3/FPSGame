@@ -77,7 +77,7 @@ public class PlayerUI : MonoBehaviour
     public void TogglePauseFrame(bool status)
     {
         bool controllStatus = (!status & !player.GetComponent<PlayerStatus>().IsDeath()); // if pause frame not open and player not death
-        player.GetComponent<PlayerControllerUI>().EnableControls(controllStatus); 
+        if (player) player.GetComponent<PlayerControllerUI>().EnableControls(controllStatus); 
         pauseFrame.SetActive(status);
     }
     private void UpdateTimeRemainingStatus(string status)

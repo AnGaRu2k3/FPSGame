@@ -19,10 +19,22 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
     {
         base.OnJoinedRoom();
         Debug.Log("A player has join room");
+        SetUpPlayer();
+    }
+
+    public void SetUpPlayer()
+    {
         // init player
         Transform[] spawnPoints = GlobalReferences.Instance.spawnPoints;
         Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
         GameObject player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
+        // set up global
+        if (player.GetPhotonView().IsMine)
+        {
+            GlobalReferences.Instance.localPlayerName = PhotonNetwork.NickName;
+            GlobalReferences.Instance.localPlayer = player;
+        }
+        
         // set up weapon
         Weapon weapon = player.GetComponentInChildren<Weapon>();
         if (weapon)
@@ -63,5 +75,4 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
         PlayerStatusTableTab.Instance.DisplayTable();
         playerUI.GetComponent<PlayerUI>().SetPlayer(player);
     }
-
 }

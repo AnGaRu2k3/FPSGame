@@ -5,16 +5,19 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private float gameDuration = 300f;
+    [SerializeField] private float gameDuration = 90f;
 
     private float timeRemaining;
     private bool gameStarted = false;
     private bool countdownStarted = false;
+    private bool gameEnded = false;
     private float countdownTime = 3f; // Time for countdown before the game starts
 
     public static GameManager Instance { get; private set; }
 
     public event Action<string> OnTimeStatusUpdated; // Event to notify PlayerUI
+
+    public GameObject ResultGameUI;
 
     private void Awake()
     {
@@ -36,13 +39,14 @@ public class GameManager : MonoBehaviour
     {
         if (!gameStarted && !countdownStarted)
         {
-            if (PhotonNetwork.PlayerList.Length >= 2)
+            int playerCount = GameObject.FindGameObjectsWithTag("Player").Length;
+            if (playerCount >= 2)
             {
                 StartCountdown();
             }
             else
             {
-                NotifyTimeStatus("Waiting for other players");
+                NotifyTimeStatus("At lease 3 players to start game");
             }
         }
         else if (countdownStarted && !gameStarted)
@@ -89,6 +93,7 @@ public class GameManager : MonoBehaviour
     }
     void UpdateTimer()
     {
+        if (gameEnded == true) return;
         if (timeRemaining > 0)
         {
             timeRemaining -= Time.deltaTime;
@@ -96,6 +101,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            gameEnded = true;
             EndGame();
         }
     }
@@ -103,11 +109,29 @@ public class GameManager : MonoBehaviour
     void EndGame()
     {
         gameStarted = false;
-        NotifyTimeStatus("Game Over");
-        Debug.Log("Game Over!");
+        ShowResultGame();
+        GameObject player = GlobalReferences.Instance.localPlayer;
+        player.GetComponent<PlayerControllerUI>().EnableControls(false);
+        PhotonNetwork.Destroy(player);
+        
+        ResultGameUI.SetActive(true);
+
+    }
+    public void Restart()
+    {
+        GameObject.FindObjectOfType<PlayerSetUp>().SetUpPlayer();
+        ResultGameUI.SetActive(false);
+        gameEnded = false;
+        gameStarted = false;
+        countdownStarted = false;
+        timeRemaining = gameDuration;
     }
 
 
+    public void ShowResultGame()
+    {
+        ResultGameUI.SetActive(true);
+    }
     private void NotifyTimeStatus(string customMessage = null)
     {
         if (customMessage != null)
@@ -120,5 +144,9 @@ public class GameManager : MonoBehaviour
             int seconds = ((int)timeRemaining) % 60;
             OnTimeStatusUpdated?.Invoke($"{minutes:D2}:{seconds:D2}");
         }
+    }
+    public bool ISGameStart()
+    {
+        return gameStarted;
     }
 }

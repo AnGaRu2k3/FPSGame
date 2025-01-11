@@ -16,13 +16,9 @@ public class Weapon : MonoBehaviour
     [SerializeField] private bool localPlayer = false;
     [SerializeField] private GameObject player;
     [SerializeField] private PlayerSync playerSync;
-    [Header("Camera and Aiming")]
+    [Header("Camera")]
     [SerializeField] private Camera playerCamera;
-    [SerializeField] private Transform aimSpot;
-    [SerializeField] private bool isAiming = false;
-    [SerializeField] private float zoomOut = 60f; 
-    [SerializeField] private float zoomIn = 40f;     
-    [SerializeField] private float zoomSpeed = 10f; 
+    
 
     [Header("Reload")]
     [SerializeField] private bool reloading = false;
@@ -268,5 +264,5 @@ public class Weapon : MonoBehaviour
     public void StartReloadAnimation()
     {
         animator.SetTrigger("Reload");
-    } 
+    }
 }
