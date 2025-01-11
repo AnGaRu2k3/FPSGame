@@ -31,17 +31,17 @@ public class NetWorkCommandLine : MonoBehaviourPunCallbacks
         PhotonNetwork.ConnectToRegion("asia");
         Debug.Log("Connecting to Photon server...");
     }
-    [ConsoleMethod("create-room", "create room with name and maxplayer")]
-    public static void CreateRoom(string roomName, int maxPlayers)
+    [ConsoleMethod("create-room", "create room with name")]
+    public static void CreateRoom(string roomName)
     {
         RoomOptions roomOptions = new RoomOptions();
-        roomOptions.MaxPlayers = (byte)maxPlayers;
+        roomOptions.MaxPlayers = 6;
         roomOptions.IsOpen = true;
         roomOptions.IsVisible = true;
 
         // Create room
         PhotonNetwork.CreateRoom(roomName, roomOptions);
-        Debug.Log($"Room {roomName} created with max players: {maxPlayers}");
+        Debug.Log($"Room {roomName} created with max players: 6)");
 
         
     }
@@ -117,6 +117,37 @@ public class NetWorkCommandLine : MonoBehaviourPunCallbacks
             Debug.Log("room name is: " + room.Name);
         }
     }
+    [ConsoleMethod("quick-join", "Join a random room or create one if none exists")]
+    public static void QuickJoin()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            Debug.Log("Already in a room, leave before join r");
+            return;
+        }
+
+        Debug.Log("Attempting to join a random room...");
+        PhotonNetwork.JoinRandomRoom(); 
+    }
+    public override void OnJoinRandomFailed(short returnCode, string message)
+    {
+        Debug.Log("No random room available, creating a new room...");
+        string roomName = "Room_" + UnityEngine.Random.Range(1000, 9999); 
+        RoomOptions roomOptions = new RoomOptions
+        {
+            MaxPlayers = 6, 
+            IsOpen = true,
+            IsVisible = true
+        };
+
+        PhotonNetwork.CreateRoom(roomName, roomOptions);
+        Debug.Log($"Created a new room: {roomName}");
+    }
+    public override void OnJoinedRoom()
+    {
+        Debug.Log($"Joined room: {PhotonNetwork.CurrentRoom.Name}");
+    }
+
     [ConsoleMethod("set-player-name", "Set the player's name")]
     public static void SetPlayerName(string name)
     {
@@ -157,6 +188,7 @@ public class NetWorkCommandLine : MonoBehaviourPunCallbacks
             Debug.Log($"GameObject {gameObjectName} not found or does not have a PlayerStatus component.");
         }
     }
+
 
 
 

@@ -8,6 +8,9 @@ public class GlobalReferences : MonoBehaviour
     public static GlobalReferences Instance{get; set;}
     public Transform[] spawnPoints;
     public GameObject bulletImpactPrefab;
+    public GameObject bloodSprayPrefab;
+    public string localPlayerName;
+    public GameObject localPlayer;
     private void Awake()
     {
         if (Instance != null && Instance != this)

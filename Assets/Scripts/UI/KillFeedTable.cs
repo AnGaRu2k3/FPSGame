@@ -26,7 +26,11 @@ public class KillFeedTable : MonoBehaviour
         GameObject killFeed = Instantiate(killFeedPrefab, killFeedTable);
         TMP_Text[] texts = killFeed.GetComponentsInChildren<TMP_Text>();
         texts[0].text = killPlayerName;
+
+        texts[0].color = (GlobalReferences.Instance.localPlayerName == killPlayerName) ? Color.green : Color.red;
+
         texts[1].text = deathPlayerName;
+        texts[1].color = (GlobalReferences.Instance.localPlayerName == deathPlayerName) ? Color.green : Color.red;
         Destroy(killFeed, 3f);
     }
 }
