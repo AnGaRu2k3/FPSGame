@@ -1,23 +1,26 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
+using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private float gameDuration = 90f;
 
-    private float timeRemaining;
-    private bool gameStarted = false;
-    private bool countdownStarted = false;
-    private bool gameEnded = false;
-    private float countdownTime = 3f; // Time for countdown before the game starts
+    [SerializeField] private float timeRemaining;
+    [SerializeField] private bool gameStarted = false;
+    [SerializeField] private bool countdownStarted = false;
+    [SerializeField] private bool gameEnded = false;
+    [SerializeField] private float countdownTime = 3f; // Time for countdown before the game starts
 
     public static GameManager Instance { get; private set; }
 
     public event Action<string> OnTimeStatusUpdated; // Event to notify PlayerUI
 
-    public GameObject ResultGameUI;
+    [SerializeField] public GameObject resultGameUI;
 
     private void Awake()
     {
@@ -113,14 +116,14 @@ public class GameManager : MonoBehaviour
         GameObject player = GlobalReferences.Instance.localPlayer;
         player.GetComponent<PlayerControllerUI>().EnableControls(false);
         PhotonNetwork.Destroy(player);
-        
-        ResultGameUI.SetActive(true);
+
+        resultGameUI.SetActive(true);
 
     }
     public void Restart()
     {
         GameObject.FindObjectOfType<PlayerSetUp>().SetUpPlayer();
-        ResultGameUI.SetActive(false);
+        resultGameUI.SetActive(false);
         gameEnded = false;
         gameStarted = false;
         countdownStarted = false;
@@ -131,7 +134,11 @@ public class GameManager : MonoBehaviour
 
     public void ShowResultGame()
     {
-        ResultGameUI.SetActive(true);
+        resultGameUI.SetActive(true);
+        TMP_Text[] texts = resultGameUI.GetComponentsInChildren<TMP_Text>();
+        List<string> List = PlayerStatusTableTab.Instance.Get3PlayerNameHighScore();
+        for (int i = 0; i <= Math.Min(List.Count, 2); i++) texts[i].text = ((string)List[i]);
+
     }
     private void NotifyTimeStatus(string customMessage = null)
     {

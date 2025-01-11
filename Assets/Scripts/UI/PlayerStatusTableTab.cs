@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 [System.Serializable]
 public class KDA
@@ -46,7 +47,12 @@ public class PlayerStatusTableTab : MonoBehaviour
     {
         DisplayTable();
     }
-   
+    public List<string> Get3PlayerNameHighScore()
+    {
+        List<string> list = new List<string>() ;
+        //list = ((List<KDA>)(playerKDAList.Take(3))).Select(player => player.playerName).ToList();
+        return list;
+    }
     public void DisplayTable()
     {
         playerKDAList.Clear();
