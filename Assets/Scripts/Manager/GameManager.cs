@@ -135,6 +135,7 @@ public class GameManager : MonoBehaviour
     public void ShowResultGame()
     {
         resultGameUI.SetActive(true);
+        AudioManager.instance.PlayLeaderboard();
         TMP_Text[] texts = resultGameUI.GetComponentsInChildren<TMP_Text>();
         List<string> List = PlayerStatusTableTab.Instance.Get3PlayerNameHighScore();
         for (int i = 0; i <= Math.Min(List.Count, 2); i++) texts[i].text = ((string)List[i]);

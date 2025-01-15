@@ -41,6 +41,7 @@ public class PlayerSync : MonoBehaviourPun
     public void ShootBullet(Vector3 direction, Vector3 spawnPosition, float velocity)
     {
         Debug.Log("ShootBullet");
+        AudioManager.instance.PlayFire();
         // muzzle effect
         muzzleEffect.GetComponent<ParticleSystem>().Play();
 

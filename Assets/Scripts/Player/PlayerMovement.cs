@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private Vector3 velocity;
 
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -49,7 +50,6 @@ public class PlayerMovement : MonoBehaviour
         }
         // Apply movement with gravity and jump
         controller.Move(velocity * Time.deltaTime);
-
         
     }
 }

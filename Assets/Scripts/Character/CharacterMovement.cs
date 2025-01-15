@@ -18,6 +18,8 @@ public class CharacterMovement : MonoBehaviourPun
     private float movementZ;
     private bool isJumping;
 
+    private bool startWalking = false;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -81,6 +83,7 @@ public class CharacterMovement : MonoBehaviourPun
         // sync animation
         movementX = horizontal;
         movementZ = vertical;
+
 
         // jump
         if (Input.GetButtonDown("Jump") && isGrounded)

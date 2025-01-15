@@ -151,6 +151,8 @@ public class PlayerStatus : MonoBehaviourPun, IPunObservable
         PlayerUI.Instance.ToggleDeathScreen(true);
         // player controller
         gameObject.GetComponent<PlayerControllerUI>().EnableControls(false);
+        // audio
+        AudioManager.instance.PlayDeath();
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

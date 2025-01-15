@@ -73,11 +73,18 @@ public class Weapon : MonoBehaviour
     
     [SerializeField] private bool recoiling = false;
     [SerializeField] private bool recovering = false;
+
+    private bool reloadLogged = false;
+
+    // [Header("Sound")]
+    // [SerializeField] private AudioManager audioManager;
     private void Awake()
     {
         ready2Shoot = true;
         currentBulletInBurst = 0;
         playerCamera = Camera.main;
+
+        // audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
     private void Start()
     {
@@ -168,6 +175,7 @@ public class Weapon : MonoBehaviour
         {
             currentBulletInBurst++;
             Invoke("FireWeapon", burstDelay);
+            // audioManager.PlayFire();
         }
         if (allowReset)
         {
@@ -253,7 +261,7 @@ public class Weapon : MonoBehaviour
     {
         ammo = magAmmo;
         reloading = false;
-      
+        reloadLogged = false; // Reset the flag when reload is complete
         Debug.Log("Reload Complete!");
     }
     public void SetLocalPlayer()
@@ -263,6 +271,11 @@ public class Weapon : MonoBehaviour
     }
     public void StartReloadAnimation()
     {
+        if (!reloadLogged)
+        {
+            AudioManager.instance.PlayReload();
+            reloadLogged = true;
+        }
         animator.SetTrigger("Reload");
     }
 }
