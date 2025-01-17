@@ -11,8 +11,8 @@ public class MenuController : MonoBehaviour
     [SerializeField] private TMP_Text volumeTextMesh = null;
     [SerializeField] private Slider volumeSlider = null;
 
-    [SerializeField] private int volumeValue = 40;
-    [SerializeField] private int defaultVolume = 40;
+    [SerializeField] private int volumeValue = 100;
+    [SerializeField] private int defaultVolume = 100;
 
     [SerializeField] private GameObject comfirmationPrompt = null;
 

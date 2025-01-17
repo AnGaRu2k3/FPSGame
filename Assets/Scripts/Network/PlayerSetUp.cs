@@ -59,6 +59,8 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
                 }
             }
             aimFreeLookCamera = weapon.GetComponentInChildren<CinemachineFreeLook>();
+            // AudioSource audioSource = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioSource>();
+            // audioSource.transform.position = Camera.main.transform.position;
 
         }
         // set up rig
@@ -74,5 +76,6 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
         // update player in orthers client
         PlayerStatusTableTab.Instance.DisplayTable();
         playerUI.GetComponent<PlayerUI>().SetPlayer(player);
+        // AudioManager.instance.SetPlayer(player);
     }
 }

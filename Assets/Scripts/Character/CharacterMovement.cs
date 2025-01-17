@@ -20,6 +20,8 @@ public class CharacterMovement : MonoBehaviourPun
 
     private bool startWalking = false;
 
+    private PlayerSFXManager playerSFXManager;
+    private GameObject sfxSourceHolder;
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -31,6 +33,9 @@ public class CharacterMovement : MonoBehaviourPun
         {
             if (!mainCamera) mainCamera = Camera.main;
         }
+
+        sfxSourceHolder = GameObject.Find("SFXSourceHolder");
+        playerSFXManager = GetComponent<PlayerSFXManager>();
     }
 
     void Update()
@@ -78,6 +83,9 @@ public class CharacterMovement : MonoBehaviourPun
         if (move.magnitude > 0.1f)
         {
             controller.Move(move * speed * Time.deltaTime);
+            sfxSourceHolder.transform.position = controller.transform.position;
+            // AudioManager.instance.PlayWalk();
+            playerSFXManager.PlayWalk();
         }
 
         // sync animation

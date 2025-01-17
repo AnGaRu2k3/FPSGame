@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Photon.Pun;
 
 public class AudioManager : MonoBehaviour {
   private float volume = 1;
@@ -27,13 +28,19 @@ public class AudioManager : MonoBehaviour {
   public static AudioManager instance { get;  set; }
 
   private void Update() {
-
     if (SceneManager.GetActiveScene().name == "test main") {
       if (!instance.bgmAudioSource.isPlaying)  {
         Debug.Log("playing audio");
 
         instance.bgmAudioSource.Play();
       }
+    } else {
+      instance.bgmAudioSource.Stop();
+
+      // Camera myCamera = Camera.main;
+      // if (photonView.IsMine) {
+      //   GameObject.FindGameObjectWithTag("Audio").transform.position = myCamera.transform.position;
+      // }
     }
 
     instance.bgmAudioSource.volume = volume;
@@ -75,7 +82,17 @@ public class AudioManager : MonoBehaviour {
 
   public void PlayWalk() {
     Debug.Log("Playing walk sound");
-    walkAudioSource.PlayOneShot(walkClip);
+    if (!walkAudioSource.isPlaying) {
+      walkAudioSource.PlayOneShot(walkClip);
+    }
+  }
+
+  [PunRPC]
+  public void PlayWalk_RPC() {
+    Debug.Log("Playing walk sound");
+    if (!walkAudioSource.isPlaying) {
+      walkAudioSource.PlayOneShot(walkClip);
+    }
   }
 
   public void PlayCountdown() {
