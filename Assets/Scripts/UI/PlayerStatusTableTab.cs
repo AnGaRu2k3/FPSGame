@@ -30,6 +30,7 @@ public class PlayerStatusTableTab : MonoBehaviour
     private List<KDA> playerKDAList = new List<KDA>();
     [SerializeField] private GameObject playerKDAPrefab;
     [SerializeField] private Transform playerListContainer;
+    [SerializeField] private TMP_Text roomName;
    
 
     static public PlayerStatusTableTab Instance { get; private set; }
@@ -49,6 +50,7 @@ public class PlayerStatusTableTab : MonoBehaviour
    
     public void DisplayTable()
     {
+        roomName.text = "Lobby name: " + GlobalReferences.Instance.roomName;
         playerKDAList.Clear();
 
         PlayerStatus[] allPlayerStatuses = FindObjectsOfType<PlayerStatus>();

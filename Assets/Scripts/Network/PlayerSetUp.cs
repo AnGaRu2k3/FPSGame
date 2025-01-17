@@ -33,6 +33,7 @@ public class PlayerSetUp : MonoBehaviourPunCallbacks
         {
             GlobalReferences.Instance.localPlayerName = PhotonNetwork.NickName;
             GlobalReferences.Instance.localPlayer = player;
+            GlobalReferences.Instance.roomName = PhotonNetwork.CurrentRoom.Name;
         }
         
         // set up weapon
