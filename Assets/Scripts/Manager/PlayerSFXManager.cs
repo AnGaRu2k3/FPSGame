@@ -38,6 +38,7 @@ public class PlayerSFXManager : MonoBehaviourPun {
   }
 
   public void PlayFire() {
+    Debug.Log("Playing fire sound");
     fireAudioSource.PlayOneShot(fireClip);
   }
 
@@ -47,7 +48,7 @@ public class PlayerSFXManager : MonoBehaviourPun {
 
   public void PlayWalk() {
     Debug.Log(animator.GetFloat("MovementX"));
-    if(Math.Abs(animator.GetFloat("MovementX")) > 0.1f || Math.Abs(animator.GetFloat("MovementZ")) > 0.1f) {
+    if(Math.Abs(animator.GetFloat("MovementX")) > 0.5f || Math.Abs(animator.GetFloat("MovementZ")) > 0.5f) {
       Debug.Log("Playing walk sound");
       if(isLocalPlayer) {
 

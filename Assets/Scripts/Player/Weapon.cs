@@ -73,6 +73,10 @@ public class Weapon : MonoBehaviour
     
     [SerializeField] private bool recoiling = false;
     [SerializeField] private bool recovering = false;
+
+    [SerializeField] private PlayerSFXManager playerSFXManager;
+    private bool reloadLogged = false;
+    
     private void Awake()
     {
         ready2Shoot = true;
@@ -84,6 +88,7 @@ public class Weapon : MonoBehaviour
         playerSync = player.GetComponent<PlayerSync>();
         recoidRigLayer.weight = currentRecoilRigValue;
         animator = player.GetComponent<Animator>();
+        playerSFXManager = player.GetComponent<PlayerSFXManager>();
         //Debug.Log("defaultCamePos" + defaultCameraPosition);
     }
     // Update is called once per frame
@@ -168,7 +173,9 @@ public class Weapon : MonoBehaviour
         {
             currentBulletInBurst++;
             Invoke("FireWeapon", burstDelay);
+            Debug.Log("Bursting");
         }
+            playerSFXManager.PlayFire();
         if (allowReset)
         {
             Debug.Log("Wait for reset");
@@ -263,6 +270,11 @@ public class Weapon : MonoBehaviour
     }
     public void StartReloadAnimation()
     {
+        if (!reloadLogged)
+        {
+            playerSFXManager.PlayReload();
+            reloadLogged = true;
+        }
         animator.SetTrigger("Reload");
     }
 }
