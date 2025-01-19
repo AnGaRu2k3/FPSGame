@@ -42,7 +42,9 @@ public class PlayerSFXManager : MonoBehaviourPun {
 
   public void PlayWalk() {
     // GetComponent<PhotonView>().RPC("PlayWalk_RPC", RpcTarget.All);
-    if(animator.getFloat("MovementX") > 0.1f || animator.getFloat("MovementZ") > 0.1f) {
+    Debug.Log(animator.GetFloat("MovementX"));
+    if(animator.GetFloat("MovementX") > 0.1f || animator.GetFloat("MovementZ") > 0.1f) {
+        Debug.Log("Playing walk sound");
       if(!walkAudioSource.isPlaying) {
         walkAudioSource.PlayOneShot(walkClip);
       }

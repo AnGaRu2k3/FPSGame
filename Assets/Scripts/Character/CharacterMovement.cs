@@ -18,12 +18,15 @@ public class CharacterMovement : MonoBehaviourPun
     private float movementZ;
     private bool isJumping;
 
+    private PlayerSFXManager playerSFXManager;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         controller.enabled = photonView.IsMine;
         animator.enabled = true;
+        playerSFXManager = GetComponent<PlayerSFXManager>();
 
         if (photonView.IsMine)
         {
@@ -76,6 +79,7 @@ public class CharacterMovement : MonoBehaviourPun
         if (move.magnitude > 0.1f)
         {
             controller.Move(move * speed * Time.deltaTime);
+            playerSFXManager.PlayWalk();
         }
 
         // sync animation
