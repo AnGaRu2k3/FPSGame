@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
+using System;
 
 public class PlayerSFXManager : MonoBehaviourPun {
   private float volume = 1;
@@ -9,23 +10,27 @@ public class PlayerSFXManager : MonoBehaviourPun {
   [SerializeField] public AudioSource fireAudioSource;
   [SerializeField] public AudioSource reloadAudioSource;
   [SerializeField] public AudioSource walkAudioSource;
+  [SerializeField] public AudioSource enemyWalkAudioSource;  
   [SerializeField] public AudioSource deathAudioSource;
   
   [Header("Audio Clips")]
   [SerializeField] public AudioClip fireClip;
   [SerializeField] public AudioClip reloadClip;
   [SerializeField] public AudioClip walkClip;
+  [SerializeField] public AudioClip enemyWalkClip;
   [SerializeField] public AudioClip deathClip;
 
   public Animator animator;
-
+  public bool isLocalPlayer = false;
 
   public void Start() {
     fireAudioSource = GameObject.Find("Fire").GetComponent<AudioSource>();
     reloadAudioSource = GameObject.Find("Reload").GetComponent<AudioSource>();
-    walkAudioSource = GameObject.Find("Walk").GetComponent<AudioSource>();
+    walkAudioSource =  GameObject.Find("Walk").GetComponent<AudioSource>();
+    enemyWalkAudioSource = GameObject.Find("EnemyWalk").GetComponent<AudioSource>();
     deathAudioSource = GameObject.Find("Death").GetComponent<AudioSource>();
     animator = GetComponent<Animator>();
+    isLocalPlayer = gameObject.GetComponent<PhotonView>().IsMine;
   }
 
   public float GetVolume() {
@@ -41,12 +46,18 @@ public class PlayerSFXManager : MonoBehaviourPun {
   }
 
   public void PlayWalk() {
-    // GetComponent<PhotonView>().RPC("PlayWalk_RPC", RpcTarget.All);
     Debug.Log(animator.GetFloat("MovementX"));
-    if(animator.GetFloat("MovementX") > 0.1f || animator.GetFloat("MovementZ") > 0.1f) {
-        Debug.Log("Playing walk sound");
-      if(!walkAudioSource.isPlaying) {
-        walkAudioSource.PlayOneShot(walkClip);
+    if(Math.Abs(animator.GetFloat("MovementX")) > 0.1f || Math.Abs(animator.GetFloat("MovementZ")) > 0.1f) {
+      Debug.Log("Playing walk sound");
+      if(isLocalPlayer) {
+
+        if(!walkAudioSource.isPlaying) {
+          walkAudioSource.PlayOneShot(walkClip);
+        } else {
+          if(!enemyWalkAudioSource.isPlaying) {
+            enemyWalkAudioSource.PlayOneShot(enemyWalkClip);
+          }
+        }
       }
     }
   }
