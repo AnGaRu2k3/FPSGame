@@ -8,9 +8,10 @@ using Unity.VisualScripting;
 public class MenuController : MonoBehaviour
 {
     [Header("Volume Setting")]
-    [SerializeField] private TMP_Text volumeTextValue = null;
+    [SerializeField] private TMP_Text volumeTextMesh  = null;
     [SerializeField] private Slider volumeSlider = null;
-    [SerializeField] private int defaultVolume = 40;
+    [SerializeField] private int volumeValue = 100;
+    [SerializeField] private int defaultVolume = 100;
 
     [SerializeField] private GameObject comfirmationPrompt = null;
 
@@ -71,16 +72,19 @@ public class MenuController : MonoBehaviour
         Application.Quit();
     }
 
-    public void setVolume(float volume)
+    public void updateVolume()
     {
-       AudioListener.volume = volume;
-       volumeTextValue.text = volume.ToString("0");
+    //    AudioListener.volume = volume;
+        Debug.Log("Volume: " + volumeSlider.value);
+        volumeValue = (int)volumeSlider.value;
+       volumeTextMesh.text = volumeValue.ToString();
     }
     
     public void volumeApply()
     {
-        PlayerPrefs.SetFloat("masterVolume", AudioListener.volume);
-        StartCoroutine(ConfirmmationBox());
+        // PlayerPrefs.SetFloat("masterVolume", AudioListener.volume);
+        // StartCoroutine(ConfirmmationBox());
+        AudioManager.instance.SetVolume(volumeValue);
     }
     
     public void resetButton(string MenuType)
@@ -89,7 +93,7 @@ public class MenuController : MonoBehaviour
         {
             AudioListener.volume = defaultVolume;
             volumeSlider.value = defaultVolume;
-            volumeTextValue.text = defaultVolume.ToString("0");
+            volumeTextMesh.text = defaultVolume.ToString("0");
             volumeApply();
         }
     }    

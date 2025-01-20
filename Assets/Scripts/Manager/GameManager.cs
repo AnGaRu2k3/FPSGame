@@ -132,6 +132,7 @@ public class GameManager : MonoBehaviour
     public void ShowResultGame()
     {
         ResultGameUI.SetActive(true);
+        AudioManager.instance.PlayLeaderboard();
     }
     private void NotifyTimeStatus(string customMessage = null)
     {
