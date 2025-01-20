@@ -3292,7 +3292,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.639
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -3680,7 +3680,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.582
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -4475,6 +4475,16 @@ PrefabInstance:
         type: 3}
       propertyPath: aimFreeLookCamera
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3126846287482800663, guid: 04613f424c7e6448d810988d87f13f7c,
+        type: 3}
+      propertyPath: cameraRecoilVertical
+      value: 0.0002
+      objectReference: {fileID: 0}
+    - target: {fileID: 3126846287482800663, guid: 04613f424c7e6448d810988d87f13f7c,
+        type: 3}
+      propertyPath: cameraRecoilHorizontal
+      value: 0.0001
       objectReference: {fileID: 0}
     - target: {fileID: 6667078872938094896, guid: 04613f424c7e6448d810988d87f13f7c,
         type: 3}

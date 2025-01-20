@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                NotifyTimeStatus("At lease 3 players to start game");
+                NotifyTimeStatus("At least 2 players to start game");
             }
         }
         else if (countdownStarted && !gameStarted)

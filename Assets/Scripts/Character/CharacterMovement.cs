@@ -52,7 +52,6 @@ public class CharacterMovement : MonoBehaviourPun
 
         // apply gravity
         velocity.y += gravity * Time.deltaTime;
-
         isGrounded = controller.isGrounded;
 
         if (isGrounded && velocity.y < 0)
@@ -81,6 +80,8 @@ public class CharacterMovement : MonoBehaviourPun
             controller.Move(move * speed * Time.deltaTime);
             playerSFXManager.PlayWalk();
         }
+         
+            
 
         // sync animation
         movementX = horizontal;

@@ -48,20 +48,19 @@ public class PlayerSFXManager : MonoBehaviourPun {
 
   public void PlayWalk() {
     Debug.Log(animator.GetFloat("MovementX"));
-    if(Math.Abs(animator.GetFloat("MovementX")) > 0.5f || Math.Abs(animator.GetFloat("MovementZ")) > 0.5f) {
-      Debug.Log("Playing walk sound");
-      if(isLocalPlayer) {
 
-        if(!walkAudioSource.isPlaying) {
-          walkAudioSource.PlayOneShot(walkClip);
-        } else {
-          if(!enemyWalkAudioSource.isPlaying) {
-            enemyWalkAudioSource.PlayOneShot(enemyWalkClip);
-          }
+    AudioClip audioClip = isLocalPlayer ? walkClip : enemyWalkClip;
+    if (Math.Abs(animator.GetFloat("MovementX")) > 0.5f || Math.Abs(animator.GetFloat("MovementZ")) > 0.5f)
+    {
+        Debug.Log("Playing walk sound");
+
+        if (!walkAudioSource.isPlaying)
+        {
+            walkAudioSource.PlayOneShot(audioClip);
         }
-      }
     }
-  }
+    else walkAudioSource.Stop();
+}
 
   public void PlayDeath() {
     deathAudioSource.PlayOneShot(deathClip);
