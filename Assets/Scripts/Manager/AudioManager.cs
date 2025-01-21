@@ -20,7 +20,7 @@ public class AudioManager : MonoBehaviour {
   public static AudioManager instance { get;  set; }
 
   private void Update() {
-    if (SceneManager.GetActiveScene().name == "Main Menu") {
+    if (SceneManager.GetActiveScene().name == "MainMenu") {
       if (!instance.bgmAudioSource.isPlaying)  {
         Debug.Log("playing bg audio");
 
